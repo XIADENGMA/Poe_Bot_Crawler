@@ -109,60 +109,63 @@ jobs:
                   echo "最新的HTML文件是: $LATEST_HTML"
                 fi
               fi
+            fi
 
-              # 3. 将最新的HTML文件复制到result目录并命名为index.html
-              if [ -n "$LATEST_HTML" ]; then
-                echo "将最新HTML文件 $LATEST_HTML 复制为 index.html"
+            # 处理找到的最新HTML文件
+            if [ -n "$LATEST_HTML" ]; then
+              echo "将最新HTML文件 $LATEST_HTML 复制为 index.html"
 
-                # 检查文件是否已经在result目录中
-                if [[ "$LATEST_HTML" == "output/result/"* && "$(basename "$LATEST_HTML")" != "index.html" ]]; then
-                  echo "文件已经在result目录，直接重命名而不是复制"
-                  mv "$LATEST_HTML" "output/result/index.html"
-                else
-                  # 其他情况直接复制
-                  cp "$LATEST_HTML" "output/result/index.html"
-                fi
-
-                # 确认复制成功
-                if [ -f "output/result/index.html" ]; then
-                  echo "成功创建 output/result/index.html"
-                  echo "文件内容前几行:"
-                  head -n 10 "output/result/index.html"
-                else
-                  echo "错误: 复制到 output/result/index.html 失败"
-                fi
-
-                # 4. 复制其他HTML文件到result目录（保持原名，排除output/result目录）
-                echo "复制其他HTML文件到result目录..."
-                HTML_FILES_COUNT=0
-                for html_file in $(find output -type f -name "*.html" -not -path "output/result/*"); do
-                  if [ "$html_file" != "$LATEST_HTML" ]; then
-                    filename=$(basename "$html_file")
-                    echo "复制 $html_file 到 output/result/$filename"
-                    cp "$html_file" "output/result/$filename"
-                    HTML_FILES_COUNT=$((HTML_FILES_COUNT + 1))
-                  fi
-                done
-
-                echo "共复制了 $HTML_FILES_COUNT 个额外的HTML文件到result目录"
-
-                # 如果result目录为空，至少确保index.html存在
-                if [ ! -f "output/result/index.html" ]; then
-                  echo "警告: result目录中没有index.html文件，创建一个简单的占位文件"
-                  echo "<html><body><h1>Poe Bots Data</h1><p>No data found for today. Please check the logs.</p></body></html>" > "output/result/index.html"
-                fi
+              # 检查文件是否已经在result目录中
+              if [[ "$LATEST_HTML" == "output/result/"* && "$(basename "$LATEST_HTML")" != "index.html" ]]; then
+                echo "文件已经在result目录，直接重命名而不是复制"
+                mv "$LATEST_HTML" "output/result/index.html"
               else
-                echo "错误: 无法确定最新的HTML文件"
-                # 创建一个错误页面作为index.html
-                echo "<html><body><h1>Error</h1><p>Failed to find any HTML files to use as the index. Please check the logs.</p></body></html>" > "output/result/index.html"
-                echo "创建了一个错误页面作为index.html"
+                # 其他情况直接复制
+                cp "$LATEST_HTML" "output/result/index.html"
               fi
+
+              # 确认复制成功
+              if [ -f "output/result/index.html" ]; then
+                echo "成功创建 output/result/index.html"
+                echo "文件内容前几行:"
+                head -n 10 "output/result/index.html"
+              else
+                echo "错误: 复制到 output/result/index.html 失败"
+              fi
+
+              # 复制其他HTML文件到result目录
+              echo "复制其他HTML文件到result目录..."
+              HTML_FILES_COUNT=0
+              for html_file in $(find output -type f -name "*.html" -not -path "output/result/*"); do
+                if [ "$html_file" != "$LATEST_HTML" ]; then
+                  filename=$(basename "$html_file")
+                  echo "复制 $html_file 到 output/result/$filename"
+                  cp "$html_file" "output/result/$filename"
+                  HTML_FILES_COUNT=$((HTML_FILES_COUNT + 1))
+                fi
+              done
+
+              echo "共复制了 $HTML_FILES_COUNT 个额外的HTML文件到result目录"
+            else
+              echo "错误: 无法确定最新的HTML文件"
+              echo "<html><body><h1>Error</h1><p>Failed to find any HTML files to use as the index. Please check the logs.</p></body></html>" > "output/result/index.html"
+              echo "创建了一个错误页面作为index.html"
+            fi
+
+            # 确保index.html存在
+            if [ ! -f "output/result/index.html" ]; then
+              echo "警告: result目录中没有index.html文件，创建一个简单的占位文件"
+              echo "<html><body><h1>Poe Bots Data</h1><p>No data found for today. Please check the logs.</p></body></html>" > "output/result/index.html"
+            fi
 
             # 显示结果目录中的文件
             echo "output/result 目录中的文件:"
             ls -la output/result/
           else
             echo "未找到HTML文件，请检查爬虫输出"
+            # 确保在没有找到文件时也创建一个index.html
+            mkdir -p output/result
+            echo "<html><body><h1>No HTML Files Found</h1><p>No HTML files were found in the output directory. Please check the crawler logs.</p></body></html>" > "output/result/index.html"
           fi
 
       - name: Configure Git

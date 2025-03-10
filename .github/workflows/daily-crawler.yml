@@ -1,0 +1,116 @@
+name: Daily Poe Bot Crawler
+
+on:
+  schedule:
+    # 每天UTC时间4:00运行
+    - cron: '0 4 * * *'
+  workflow_dispatch: # 允许手动触发工作流
+
+permissions:
+  contents: write # 需要写入权限来推送更改
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整历史以便正确提交
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip' # 启用依赖缓存
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Create .env file with secrets
+        run: |
+          echo "P_B=${{ secrets.P_B }}" > .env
+          echo "P_LAT=${{ secrets.P_LAT }}" >> .env
+          # 验证.env文件已创建（不显示内容）
+          ls -la .env
+
+      - name: Debug environment
+        run: |
+          echo "Python version: $(python --version)"
+          echo "Installed packages:"
+          pip list
+          echo "Working directory: $(pwd)"
+          echo "Secret variables existence check:"
+          echo "P_B exists: ${{ secrets.P_B != '' }}"
+          echo "P_LAT exists: ${{ secrets.P_LAT != '' }}"
+
+      - name: Run Poe crawler
+        run: |
+          # 验证环境变量是否可以加载
+          python -c "from dotenv import load_dotenv; import os; load_dotenv(); print('P_B loaded:', bool(os.getenv('P_B'))); print('P_LAT loaded:', bool(os.getenv('P_LAT')))"
+          # 运行爬虫程序
+          python -m src.main
+
+          # 确保output/result目录存在
+          mkdir -p output/result
+
+          # 处理HTML文件
+          if [ -d "output" ] && [ "$(find output -name "*.html" | wc -l)" -gt 0 ]; then
+            echo "处理HTML文件..."
+
+            # 当前日期
+            CURRENT_DATE=$(date +'%Y-%m-%d')
+
+            # 1. 如果已存在index.html文件，将其重命名为带日期的文件
+            if [ -f "output/result/index.html" ]; then
+              # 获取文件的最后修改日期
+              FILE_MOD_DATE=$(date -r "output/result/index.html" +'%Y-%m-%d')
+              # 重命名为带日期的文件名
+              echo "将现有index.html重命名为archive-${FILE_MOD_DATE}.html"
+              mv "output/result/index.html" "output/result/archive-${FILE_MOD_DATE}.html"
+            fi
+
+            # 2. 找到最新生成的HTML文件（通常在output目录下）
+            LATEST_HTML=$(find output -name "*.html" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+
+            # 3. 将最新的HTML文件复制到result目录并命名为index.html
+            if [ -n "$LATEST_HTML" ]; then
+              echo "将最新HTML文件 $LATEST_HTML 复制为 index.html"
+              cp "$LATEST_HTML" "output/result/index.html"
+
+              # 4. 复制其他HTML文件到result目录（保持原名）
+              for html_file in $(find output -name "*.html" -type f); do
+                if [ "$html_file" != "$LATEST_HTML" ]; then
+                  filename=$(basename "$html_file")
+                  cp "$html_file" "output/result/$filename"
+                fi
+              done
+            fi
+
+            # 显示结果目录中的文件
+            echo "output/result 目录中的文件:"
+            ls -la output/result/
+          else
+            echo "未找到HTML文件"
+          fi
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Commit and push changes
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          # 确保输出目录存在
+          mkdir -p output/result logs
+          # 检查是否有更改需要提交
+          git add output/ logs/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update Poe data - $DATE"
+            git push
+          fi

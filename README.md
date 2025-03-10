@@ -81,16 +81,17 @@ This project includes a GitHub Actions workflow that automatically runs the craw
 2. Installs dependencies
 3. Runs the crawler with your stored credentials
 4. Commits and pushes any changes to the repository
+5. Uploads build artifacts for each run, which can be downloaded from the GitHub Actions interface
 
 To set up automated updates:
 
 1. Push this repository to GitHub
 2. Go to your repository settings → Secrets and variables → Actions
 3. Add the following repository secrets:
-   - `POE_P_B`: Your Poe p-b cookie value
-   - `POE_P_LAT`: Your Poe p-lat cookie value
+   - `P_B`: Your Poe p-b cookie value
+   - `P_LAT`: Your Poe p-lat cookie value
 
-The GitHub Actions workflow will use these secrets to authenticate with Poe and run the crawler without exposing your credentials.
+The GitHub Actions workflow will use these secrets to authenticate with Poe and run the crawler without exposing your credentials. Each workflow run will also produce downloadable artifacts containing the output files and logs, which are retained for 30 days.
 
 ## Project Structure
 

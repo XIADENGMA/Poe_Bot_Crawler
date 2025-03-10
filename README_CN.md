@@ -79,16 +79,17 @@ python view_html.py
 2. 安装依赖
 3. 使用存储的凭证运行爬虫
 4. 提交并推送任何更改到仓库
+5. 上传构建产物，可以从 GitHub Actions 界面下载
 
 设置自动化更新的步骤：
 
 1. 将此仓库推送到 GitHub
 2. 前往仓库设置 → Secrets and variables → Actions
 3. 添加以下仓库密钥:
-   - `POE_P_B`: 您的 Poe p-b cookie 值
-   - `POE_P_LAT`: 您的 Poe p-lat cookie 值
+   - `P_B`: 您的 Poe p-b cookie 值
+   - `P_LAT`: 您的 Poe p-lat cookie 值
 
-GitHub Actions 工作流程将使用这些密钥向 Poe 进行身份验证并运行爬虫，而不会暴露您的凭证。
+GitHub Actions 工作流程将使用这些密钥向 Poe 进行身份验证并运行爬虫，而不会暴露您的凭证。每次工作流运行还会生成包含输出文件和日志的可下载构建产物，这些产物会保留 30 天。
 
 ## 项目结构
 

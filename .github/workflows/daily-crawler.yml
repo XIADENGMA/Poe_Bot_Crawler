@@ -60,6 +60,10 @@ jobs:
           if [ -d "output" ] && [ "$(find output -name "*.html" | wc -l)" -gt 0 ]; then
             echo "处理HTML文件..."
 
+            # 列出所有HTML文件以便调试
+            echo "找到的HTML文件列表:"
+            find output -name "*.html" -type f | sort
+
             # 当前日期
             CURRENT_DATE=$(date +'%Y-%m-%d')
 
@@ -72,28 +76,51 @@ jobs:
               mv "output/result/index.html" "output/result/archive-${FILE_MOD_DATE}.html"
             fi
 
-            # 2. 找到最新生成的HTML文件（通常在output目录下）
-            LATEST_HTML=$(find output -name "*.html" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+            # 2. 找到最新生成的HTML文件（明确排除output/result目录中的文件）
+            echo "搜索output目录中的HTML文件（排除output/result目录）..."
+            HTML_FILES=$(find output -type f -name "*.html" -not -path "output/result/*" | sort)
+            echo "找到以下非result目录的HTML文件:"
+            echo "$HTML_FILES"
 
-            # 3. 将最新的HTML文件复制到result目录并命名为index.html
-            if [ -n "$LATEST_HTML" ]; then
-              echo "将最新HTML文件 $LATEST_HTML 复制为 index.html"
-              cp "$LATEST_HTML" "output/result/index.html"
+            if [ -z "$HTML_FILES" ]; then
+              echo "警告: 未找到output目录中除result子目录外的HTML文件"
+              # 继续执行，可能之前的运行已经创建了文件
+            else
+              # 获取最新的HTML文件
+              LATEST_HTML=$(find output -type f -name "*.html" -not -path "output/result/*" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+              echo "最新的HTML文件是: $LATEST_HTML"
 
-              # 4. 复制其他HTML文件到result目录（保持原名）
-              for html_file in $(find output -name "*.html" -type f); do
-                if [ "$html_file" != "$LATEST_HTML" ]; then
-                  filename=$(basename "$html_file")
-                  cp "$html_file" "output/result/$filename"
+              # 3. 将最新的HTML文件复制到result目录并命名为index.html
+              if [ -n "$LATEST_HTML" ]; then
+                echo "将最新HTML文件 $LATEST_HTML 复制为 index.html"
+                cp "$LATEST_HTML" "output/result/index.html"
+
+                # 确认复制成功
+                if [ -f "output/result/index.html" ]; then
+                  echo "成功创建 output/result/index.html"
+                else
+                  echo "错误: 复制到 output/result/index.html 失败"
                 fi
-              done
+
+                # 4. 复制其他HTML文件到result目录（保持原名，排除output/result目录）
+                echo "复制其他HTML文件到result目录..."
+                for html_file in $(find output -type f -name "*.html" -not -path "output/result/*"); do
+                  if [ "$html_file" != "$LATEST_HTML" ]; then
+                    filename=$(basename "$html_file")
+                    echo "复制 $html_file 到 output/result/$filename"
+                    cp "$html_file" "output/result/$filename"
+                  fi
+                done
+              else
+                echo "错误: 无法确定最新的HTML文件"
+              fi
             fi
 
             # 显示结果目录中的文件
             echo "output/result 目录中的文件:"
             ls -la output/result/
           else
-            echo "未找到HTML文件"
+            echo "未找到HTML文件，请检查爬虫输出"
           fi
 
       - name: Configure Git

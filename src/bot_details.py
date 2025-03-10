@@ -354,9 +354,9 @@ def parse_rate_menu_markdown(markdown_text, pricing_type=None, standard_price=No
 
     if cached_input_match and chat_history_discount_match and result.get("text_input"):
         discount = int(chat_history_discount_match.group(1))
-        discount_factor = (100 - discount) / 100
+        discount_factor = discount / 100
         original_value = int(result["text_input"]["value"])
-        discounted_value = str(int(original_value * discount_factor))
+        discounted_value = str(int(original_value * discount_factor + 0.5))
 
         result["cached_input"] = {
             "value": discounted_value,

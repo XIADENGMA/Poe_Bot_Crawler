@@ -668,10 +668,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             </div>
         </header>
 
-        <div class="info">
-            <p>此页面展示了 Poe 平台上官方机器人的积分价格信息。价格可能会随时变动，请以 Poe 官方显示为准。通过此页面，您可以比较不同机器人的价格，包括基于字符和基于令牌的定价模型。</p>
-        </div>
-
         <div class="search-filter-container">
             <div class="search-box">
                 <input type="text" id="search-input" placeholder="搜索机器人名称或描述..." class="search-input">
@@ -1181,7 +1177,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         <div class="footer">
             <p>© {{ current_year }} Poe 机器人积分价格爬虫 | 数据仅供参考</p>
-            <p>本页面使用<a href="https://poe.com/" target="_blank">Poe</a>的官方图标</p>
         </div>
     </div>
 

@@ -2,8 +2,8 @@ name: Daily Poe Bot Crawler
 
 on:
   schedule:
-    # 每天UTC时间4:00运行
-    - cron: '0 4 * * *'
+    # 每天中国时间8:00运行（UTC时间0:00）
+    - cron: '0 0 * * *'
   workflow_dispatch: # 允许手动触发工作流
 
 permissions:

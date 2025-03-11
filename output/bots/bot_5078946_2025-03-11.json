@@ -1,0 +1,84 @@
+{
+  "data": {
+    "botById": {
+      "botPricing": {
+        "rateMenuMarkdown": "Message cost is variable, depending on the duration of the generated video (in seconds) as per the below table. \n\n[Learn more](https://help.poe.com/hc/en-us/articles/19944206309524-Poe-FAQs#h_01HCFXCW5CB1DSH6F4WXXYHJFJ)\n\n| Video Duration (seconds) | Rate |\n|------|------|\n| 5 seconds | 11000 points |\n| 10 seconds | 21000 points |\n",
+        "botPricingType": "undefined",
+        "standardMessagePrice": null
+      },
+      "deletionState": "not_deleted",
+      "displayName": "Runway",
+      "picture": {
+        "__typename": "URLBotImage",
+        "__isBotPicture": "URLBotImage",
+        "url": "https://qph.cf2.poecdn.net/main-thumb-pb-5078946-200-jsndnxbvsncuxazsaoakhffbbgwtkhup.jpeg"
+      },
+      "botId": 5078946,
+      "nickname": "runway",
+      "messagePointLimit": {
+        "numRemainingMessages": 0,
+        "id": "TWVzc2FnZVBvaW50TGltaXQ6NTA3ODk0Ng=="
+      },
+      "isPrivateBot": false,
+      "viewerIsCreator": false,
+      "creator": {
+        "isDeleted": false,
+        "profilePhotoUrl": "https://qph.cf2.poecdn.net/main-thumb-2910411842-50-nmzixuwssxzfykzmnzlrhtpadwolhsyc.jpeg",
+        "fullName": "RunwayML",
+        "nullableHandle": "runwayml",
+        "__isNode": "PoeUser",
+        "id": "UG9lVXNlcjoyOTEwNDExODQy"
+      },
+      "canUserAccessBot": true,
+      "__isNode": "Bot",
+      "id": "Qm90OjUwNzg5NDY="
+    },
+    "viewer": {
+      "subscription": {
+        "subscriptionProduct": {
+          "paidSubscriptionPeriod": null,
+          "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMDA="
+        },
+        "id": "U3Vic2NyaXB0aW9uOjA=",
+        "yearlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Nw=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDox"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1MQ=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Mg=="
+          }
+        ],
+        "monthlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoz"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo2"
+          }
+        ]
+      },
+      "messagePointInfo": {
+        "messagePointBalance": 2985,
+        "id": "TWVzc2FnZVBvaW50SW5mbzow"
+      },
+      "isEligibleForWebSubscriptions": true,
+      "isPrivateDeletedBotsChangesEnabled": true,
+      "id": "Vmlld2VyOjA="
+    }
+  },
+  "extensions": {
+    "hi": "bye"
+  }
+}

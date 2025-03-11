@@ -1,0 +1,84 @@
+{
+  "data": {
+    "botById": {
+      "botPricing": {
+        "rateMenuMarkdown": " \n\n| Type | Rate |\n|------|------|\n| Total cost | 15 points/message |\n",
+        "botPricingType": "flat",
+        "standardMessagePrice": 15
+      },
+      "deletionState": "not_deleted",
+      "displayName": "Web-Search",
+      "picture": {
+        "__typename": "URLBotImage",
+        "__isBotPicture": "URLBotImage",
+        "url": "https://qph.cf2.poecdn.net/main-thumb-pb-2254704-200-qzclbtuxtlnlkgqjjcfqfziyxncqehra.jpeg"
+      },
+      "botId": 2254704,
+      "nickname": "websearch",
+      "messagePointLimit": {
+        "numRemainingMessages": 199,
+        "id": "TWVzc2FnZVBvaW50TGltaXQ6MjI1NDcwNA=="
+      },
+      "isPrivateBot": false,
+      "viewerIsCreator": false,
+      "creator": {
+        "isDeleted": false,
+        "profilePhotoUrl": "https://qph.cf2.poecdn.net/main-thumb-2187163946-50-eexyawnwrihdoupubqqzwkbjvasbkqhd.jpeg",
+        "fullName": "Poe",
+        "nullableHandle": "poe",
+        "__isNode": "PoeUser",
+        "id": "UG9lVXNlcjoyMTg3MTYzOTQ2"
+      },
+      "canUserAccessBot": true,
+      "__isNode": "Bot",
+      "id": "Qm90OjIyNTQ3MDQ="
+    },
+    "viewer": {
+      "subscription": {
+        "subscriptionProduct": {
+          "paidSubscriptionPeriod": null,
+          "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMDA="
+        },
+        "id": "U3Vic2NyaXB0aW9uOjA=",
+        "yearlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Nw=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDox"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1MQ=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Mg=="
+          }
+        ],
+        "monthlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoz"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo2"
+          }
+        ]
+      },
+      "messagePointInfo": {
+        "messagePointBalance": 2985,
+        "id": "TWVzc2FnZVBvaW50SW5mbzow"
+      },
+      "isEligibleForWebSubscriptions": true,
+      "isPrivateDeletedBotsChangesEnabled": true,
+      "id": "Vmlld2VyOjA="
+    }
+  },
+  "extensions": {
+    "hi": "bye"
+  }
+}

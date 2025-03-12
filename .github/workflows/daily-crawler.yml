@@ -1,11 +1,9 @@
 name: Daily Poe Bot Crawler
 
 on:
-  push:
-    branches: [main] # 当推送到main分支时触发
   schedule:
-    # 每天中国时间9:20运行（UTC时间1:20）
-    - cron: '20 1 * * *'
+    # 每5分钟运行一次（用于测试）
+    - cron: '*/5 * * * *'
   workflow_dispatch: # 允许手动触发工作流
 
 permissions:

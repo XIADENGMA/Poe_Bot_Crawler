@@ -1,11 +1,8 @@
 name: Daily Poe Bot Crawler
 
 on:
-  push:
-    branches: [main]
   schedule:
-    # 每5分钟运行一次（用于测试）
-    - cron: '*/5 * * * *'
+    - cron: '47 1 * * *' # 北京时间上午09:20（UTC+8）
   workflow_dispatch: # 允许手动触发工作流
 
 # 为整个工作流设置权限
@@ -24,6 +21,12 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true # 如果有新的运行，取消正在进行的任务
     steps:
+      - name: Debug Trigger
+        run: |
+          echo "Event that triggered the workflow: ${{ github.event_name }}"
+          echo "Current time: $(date)"
+          echo "Current UTC time: $(date -u)"
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:

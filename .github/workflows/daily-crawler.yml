@@ -1,17 +1,28 @@
 name: Daily Poe Bot Crawler
 
 on:
+  push:
+    branches: [main]
   schedule:
     # 每5分钟运行一次（用于测试）
     - cron: '*/5 * * * *'
   workflow_dispatch: # 允许手动触发工作流
 
-permissions:
-  contents: write # 需要写入权限来推送更改
+# 为整个工作流设置权限
+permissions: write-all
+
+# 确保工作流能够运行
+env:
+  ACTIONS_RUNNER_DEBUG: true
+  ACTIONS_STEP_DEBUG: true
 
 jobs:
   crawl:
     runs-on: ubuntu-latest
+    timeout-minutes: 300 # 添加超时限制
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true # 如果有新的运行，取消正在进行的任务
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

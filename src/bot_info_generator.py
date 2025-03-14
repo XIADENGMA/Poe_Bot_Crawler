@@ -4,7 +4,10 @@ import shutil
 
 from jinja2 import Template
 
-from utils import CURRENT_DATE, RESULT_DIR, HISTORY_DIR
+from utils import CURRENT_DATE, RESULT_DIR
+# Define a custom BOT_INFO_DIR path
+BOT_INFO_DIR = Path('output/result/bot_info')
+BOT_INFO_DIR.mkdir(exist_ok=True, parents=True)
 
 # Configure logging - use the logger from the main module
 logger = logging.getLogger("src.html_generator")
@@ -651,6 +654,43 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 max-width: 100%;
             }
         }
+
+        .timeline-link {
+            display: inline-block;
+            margin-left: 8px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+            text-decoration: none;
+        }
+
+        .timeline-link:hover {
+            text-decoration: underline;
+        }
+
+        .update-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            animation: sparkle 1.5s infinite;
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+
+        @media (max-width: 992px) {
+            .bot-card {
+                opacity: 0;
+                transform: translateY(20px);
+                transition: opacity 0.5s ease, transform 0.5s ease;
+            }
+
+            .bot-card.animate-in {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -665,7 +705,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             </div>
             <div class="header-content">
                 <h1><img src="assets/favicon.svg" alt="Poe Logo" class="poe-logo">Poe 机器人积分价格</h1>
-                <p>数据更新时间: {{ date }}</p>
+                <div class="info">
+                    <p>数据更新时间: {{ date }}</p>
+                    <p>共 {{ total_bots }} 个机器人，其中 {{ paid_bots }} 个付费机器人</p>
+                    {% if has_updates %}
+                    <p class="update-notice">🔔 今日有更新，请查看 <a href="timeline.html">更新时间线</a></p>
+                    {% endif %}
+                </div>
             </div>
         </header>
 
@@ -1209,372 +1255,33 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             .bot-card {
                 opacity: 0;
                 transform: translateY(20px);
-                transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease;
+                transition: opacity 0.5s ease, transform 0.5s ease;
             }
 
             .bot-card.animate-in {
                 opacity: 1;
                 transform: translateY(0);
             }
-
-            .bot-card:hover .bot-avatar {
-                transform: scale(1.05);
-            }
-
-            .bot-description {
-                position: relative;
-                overflow: hidden;
-                max-height: 120px;
-                transition: max-height 0.3s ease;
-            }
-
-            .bot-description.expanded {
-                max-height: 300px;
-            }
-
-            .bot-description::after {
-                content: "";
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 30px;
-                background: linear-gradient(to bottom, transparent, var(--card-bg));
-                pointer-events: none;
-                opacity: 1;
-                transition: opacity 0.3s ease;
-            }
-
-            .bot-description.expanded::after {
-                opacity: 0;
-            }
-
-            .expand-btn {
-                background: var(--primary-color);
-                color: white;
-                border: none;
-                border-radius: 12px;
-                padding: 3px 10px;
-                font-size: 0.8rem;
-                cursor: pointer;
-                margin-top: -10px;
-                margin-bottom: 15px;
-                align-self: center;
-                opacity: 0.9;
-                transition: all 0.2s ease;
-            }
-
-            .expand-btn:hover {
-                opacity: 1;
-                transform: scale(1.05);
-            }
-
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-
-            .header-content {
-                animation: fadeIn 0.8s ease-out;
-            }
-
-            .theme-toggle {
-                animation: fadeIn 0.5s ease-out 0.3s backwards;
-            }
-
-            .info {
-                animation: fadeIn 0.5s ease-out 0.5s backwards;
-            }
         `;
         document.head.appendChild(style);
 
-        // Function to set theme
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            themeToggle.setAttribute('data-active', theme);
-            localStorage.setItem('poe-theme', theme);
-
-            // Add transition animation to body after theme changes
-            document.body.classList.add('theme-transition');
-            setTimeout(() => {
-                document.body.classList.remove('theme-transition');
-            }, 1000);
-        }
-
-        // Initialize theme based on localStorage or system preference
-        function initTheme() {
-            const savedTheme = localStorage.getItem('poe-theme');
-
-            if (savedTheme) {
-                // If user has previously set a theme preference
-                setTheme(savedTheme);
-            } else {
-                // Check system preference
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                setTheme(prefersDark ? 'dark' : 'light');
-            }
-        }
-
-        // Toggle theme when button is clicked
-        themeToggle.addEventListener('click', function() {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            setTheme(newTheme);
-
-            // Add a small bounce animation to the toggle
-            this.classList.add('toggle-bounce');
-            setTimeout(() => {
-                this.classList.remove('toggle-bounce');
-            }, 300);
+        // Observe each card
+        botCards.forEach(card => {
+            cardObserver.observe(card);
         });
-
-        // Listen for system preference changes
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            // Only automatically change if user hasn't manually set a preference
-            if (!localStorage.getItem('poe-theme')) {
-                setTheme(e.matches ? 'dark' : 'light');
-            }
-        });
-
-        // Initialize animation effects
-        function initAnimations() {
-            // Observe each bot card for scroll animation
-            botCards.forEach(card => {
-                cardObserver.observe(card);
-
-                // Make bot cards clickable
-                card.addEventListener('click', function(e) {
-                    // Only navigate if the click was not on an anchor tag or its children
-                    if (!e.target.closest('a') && !e.target.closest('button')) {
-                        const handle = this.getAttribute('data-handle');
-                        if (handle) {
-                            window.open(`https://poe.com/${handle}`, '_blank');
-                        }
-                    }
-                });
-
-                // Add description expand functionality
-                const description = card.querySelector('.bot-description');
-                if (description && description.scrollHeight > description.clientHeight) {
-                    const expandBtn = document.createElement('button');
-                    expandBtn.className = 'expand-btn';
-                    expandBtn.textContent = '展开描述';
-
-                    expandBtn.addEventListener('click', () => {
-                        if (description.classList.contains('expanded')) {
-                            description.classList.remove('expanded');
-                            expandBtn.textContent = '展开描述';
-                            // Scroll back to the card top when collapsing
-                            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        } else {
-                            description.classList.add('expanded');
-                            expandBtn.textContent = '收起描述';
-                        }
-                    });
-
-                    // Insert the button after the description
-                    description.parentNode.insertBefore(expandBtn, description.nextSibling);
-                }
-            });
-        }
-
-        // Initialize theme on page load
-        initTheme();
-
-        // Initialize animations when DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', initAnimations);
-
-        // Search and filter functionality
-        const searchInput = document.getElementById('search-input');
-        const searchClear = document.getElementById('search-clear');
-        const priceFilter = document.getElementById('price-filter');
-        const sortOptions = document.getElementById('sort-options');
-        const noResults = document.getElementById('no-results');
-
-        // Handle search input
-        function handleSearch() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const priceFilterValue = priceFilter.value;
-            const sortValue = sortOptions.value;
-
-            // Filter cards based on search term and filter options
-            filterAndSortCards(searchTerm, priceFilterValue, sortValue);
-        }
-
-        // Filter and sort cards
-        function filterAndSortCards(searchTerm, priceType, sortOption) {
-            let visibleCount = 0;
-            const cards = [...document.querySelectorAll('.bot-card:not(.no-results)')];
-
-            // First, reset all cards to visible for the filter process
-            cards.forEach(card => {
-                card.style.display = 'flex';
-                // Remove animation class to re-apply it later
-                card.classList.remove('animate-in');
-            });
-
-            // Apply filtering
-            cards.forEach(card => {
-                const name = card.getAttribute('data-name').toLowerCase();
-                const handle = card.getAttribute('data-handle').toLowerCase();
-                const description = card.getAttribute('data-description').toLowerCase();
-                const cardPriceType = card.getAttribute('data-pricing-type');
-
-                const searchMatch = searchTerm === '' ||
-                                   name.includes(searchTerm) ||
-                                   handle.includes(searchTerm) ||
-                                   description.includes(searchTerm);
-
-                const priceMatch = priceType === 'all' || cardPriceType === priceType;
-
-                if (searchMatch && priceMatch) {
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            // Apply sorting
-            const sortedCards = [...cards].filter(card => card.style.display !== 'none').sort((a, b) => {
-                if (sortOption === 'name-asc') {
-                    return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
-                } else if (sortOption === 'name-desc') {
-                    return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
-                } else if (sortOption === 'price-asc') {
-                    return parseFloat(a.getAttribute('data-standard-price')) - parseFloat(b.getAttribute('data-standard-price'));
-                } else if (sortOption === 'price-desc') {
-                    return parseFloat(b.getAttribute('data-standard-price')) - parseFloat(a.getAttribute('data-standard-price'));
-                }
-                return 0;
-            });
-
-            // Reappend cards in the new order
-            const grid = document.getElementById('bot-grid');
-            sortedCards.forEach(card => {
-                grid.appendChild(card);
-            });
-
-            // Show no results message if needed
-            if (visibleCount === 0) {
-                noResults.style.display = 'block';
-            } else {
-                noResults.style.display = 'none';
-
-                // Re-observe visible cards for animation
-                setTimeout(() => {
-                    const visibleCards = document.querySelectorAll('.bot-card:not([style*="display: none"])');
-                    visibleCards.forEach(card => {
-                        cardObserver.observe(card);
-                    });
-                }, 100);
-            }
-        }
-
-        // Clear search
-        searchClear.addEventListener('click', () => {
-            searchInput.value = '';
-            handleSearch();
-            searchInput.focus();
-        });
-
-        // Event listeners for search and filter controls
-        searchInput.addEventListener('input', handleSearch);
-        priceFilter.addEventListener('change', handleSearch);
-        sortOptions.addEventListener('change', handleSearch);
-
-        // Reset filters button
-        function addResetButton() {
-            const resetBtn = document.createElement('button');
-            resetBtn.textContent = '重置筛选';
-            resetBtn.className = 'filter-reset';
-            resetBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                priceFilter.value = 'all';
-                sortOptions.value = 'name-asc';
-                handleSearch();
-            });
-
-            // Add to filter options
-            document.querySelector('.filter-options').appendChild(resetBtn);
-
-            // Add CSS
-            const resetStyle = document.createElement('style');
-            resetStyle.textContent = `
-                .filter-reset {
-                    padding: 10px 15px;
-                    border-radius: 8px;
-                    border: 1px solid var(--primary-color);
-                    background-color: var(--primary-color);
-                    color: white;
-                    font-size: 0.95rem;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
-
-                .filter-reset:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-                }
-
-                @media (max-width: 768px) {
-                    .search-filter-container {
-                        flex-direction: column;
-                        align-items: stretch;
-                    }
-
-                    .filter-options {
-                        justify-content: space-between;
-                    }
-
-                    .filter-select, .filter-reset {
-                        flex: 1;
-                    }
-                }
-            `;
-            document.head.appendChild(resetStyle);
-        }
-
-        addResetButton();
-
-        // Add additional animation styles
-        const additionalStyles = document.createElement('style');
-        additionalStyles.textContent = `
-            .theme-transition {
-                transition: background-color 0.5s ease, color 0.5s ease;
-            }
-
-            .toggle-bounce {
-                animation: bounce 0.3s ease;
-            }
-
-            @keyframes bounce {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.1); }
-            }
-
-            .price-title::after {
-                animation: slideIn 1s ease-out;
-            }
-
-            @keyframes slideIn {
-                from { width: 0; }
-                to { width: 60px; }
-            }
-        `;
-        document.head.appendChild(additionalStyles);
     </script>
 </body>
 </html>
+
 """
 
-
-def generate_html(bots_data):
+def generate_html(bots_data, has_updates=False):
     """
     Generate HTML display from bot data
 
     Args:
-        bots_data: Dict containing bot data
+        bots_data: Dict or List containing bot data
+        has_updates: Whether updates are available
 
     Returns:
         Path to the generated HTML file
@@ -1582,6 +1289,85 @@ def generate_html(bots_data):
     logger.info("Generating HTML display...")
 
     try:
+        # Convert bots_data to the format expected by the template if needed
+        if isinstance(bots_data, list):
+            logger.info("Converting bots_data from list to dictionary for HTML generation")
+            bots_dict = {}
+            for idx, bot in enumerate(bots_data):
+                if isinstance(bot, dict):
+                    # Use bot_id as key if available, otherwise use index
+                    key = str(bot.get('bot_id', bot.get('botId', idx)))
+
+                    # Create a new bot dictionary with standardized field names
+                    new_bot = {}
+
+                    # Map display name
+                    if 'displayName' in bot:
+                        new_bot['display_name'] = bot['displayName']
+                    elif 'display_name' in bot:
+                        new_bot['display_name'] = bot['display_name']
+                    else:
+                        new_bot['display_name'] = "Unknown Bot"
+
+                    # Map handle/bot ID
+                    if 'botId' in bot:
+                        new_bot['handle'] = bot['botId']
+                    elif 'bot_id' in bot:
+                        new_bot['handle'] = bot['bot_id']
+                    elif 'handle' in bot:
+                        new_bot['handle'] = bot['handle']
+                    else:
+                        new_bot['handle'] = ""
+
+                    # Map description
+                    if 'description' in bot:
+                        new_bot['description'] = bot['description']
+                    else:
+                        new_bot['description'] = ""
+
+                    # Map profile picture
+                    if 'profilePicture' in bot:
+                        new_bot['picture_url'] = bot['profilePicture']
+                    elif 'picture_url' in bot:
+                        new_bot['picture_url'] = bot['picture_url']
+                    else:
+                        new_bot['picture_url'] = ""
+
+                    # Map pricing information
+                    pricing_info = {}
+                    if 'price' in bot and bot['price'] > 0:
+                        pricing_info['pricing_type'] = 'flat'
+                        pricing_info['standard_message'] = {'value': bot['price']}
+                    elif 'points_price' in bot:
+                        pricing_info = bot['points_price']
+
+                    new_bot['points_price'] = pricing_info
+
+                    # Map creator information
+                    if 'creator' in bot:
+                        new_bot['creator'] = bot['creator']
+                    else:
+                        new_bot['creator'] = {}
+
+                    bots_dict[key] = new_bot
+            bots_data = bots_dict
+
+        # Count total and paid bots
+        total_bots = len(bots_data)
+
+        # Count paid bots (those with standard_message price > 0)
+        paid_bots = 0
+        for bot_id, bot in bots_data.items():
+            try:
+                if bot.get('points_price') and bot['points_price'].get('standard_message'):
+                    value = bot['points_price']['standard_message'].get('value', 0)
+                    if value == 'N/A':
+                        continue
+                    if float(str(value)) > 0:
+                        paid_bots += 1
+            except (ValueError, TypeError):
+                continue
+
         # Create template
         template = Template(HTML_TEMPLATE)
 
@@ -1589,25 +1375,35 @@ def generate_html(bots_data):
         import datetime
 
         html_content = template.render(
-            bots=bots_data, date=CURRENT_DATE, current_year=datetime.datetime.now().year
+            bots=bots_data,
+            date=CURRENT_DATE,
+            current_year=datetime.datetime.now().year,
+            has_updates=has_updates,
+            total_bots=total_bots,
+            paid_bots=paid_bots,
+            free_bots=total_bots - paid_bots
         )
 
-        # Save HTML file to history directory
-        history_filename = f"bots_{CURRENT_DATE}.html"
-        history_filepath = HISTORY_DIR / history_filename
+        # Save HTML files
 
-        with open(history_filepath, "w", encoding="utf-8") as f:
+        # Ensure directories exist
+        BOT_INFO_DIR.mkdir(exist_ok=True, parents=True)
+
+        # Save to bot_info directory
+        bot_info_filename = f"bot_info_{CURRENT_DATE}.html"
+        bot_info_filepath = BOT_INFO_DIR / bot_info_filename
+
+        with open(bot_info_filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
 
-        # Copy the latest file to index.html
-        index_filepath = RESULT_DIR / "index.html"
-        shutil.copy2(history_filepath, index_filepath)
+        # Save index.html to result directory only
+        result_index_filepath = RESULT_DIR / "index.html"
+        shutil.copy2(bot_info_filepath, result_index_filepath)
 
-        logger.info(f"HTML display generated and saved to {history_filepath}")
-        logger.info(f"Latest HTML copy saved as {index_filepath}")
-        logger.info(f"Generated HTML display at {history_filepath}")
+        logger.info(f"HTML display saved to {bot_info_filepath}")
+        logger.info(f"Latest HTML copy saved as {result_index_filepath}")
 
-        return history_filepath
+        return bot_info_filepath
     except Exception as e:
         logger.error(f"Error generating HTML display: {e}")
         raise

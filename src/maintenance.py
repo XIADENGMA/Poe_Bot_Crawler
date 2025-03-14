@@ -27,11 +27,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = BASE_DIR / "output"
 JSON_DIR = OUTPUT_DIR / "json"
 RESULT_DIR = OUTPUT_DIR / "result"
-HISTORY_DIR = RESULT_DIR / "history"
+BOT_INFO_DIR = RESULT_DIR / "bot_info"
 LOGS_DIR = BASE_DIR / "logs"
 
 # Ensure all directories exist
-for directory in [OUTPUT_DIR, JSON_DIR, RESULT_DIR, HISTORY_DIR, LOGS_DIR]:
+for directory in [OUTPUT_DIR, JSON_DIR, RESULT_DIR, BOT_INFO_DIR, LOGS_DIR]:
     directory.mkdir(exist_ok=True)
 
 # Configure logging
@@ -75,7 +75,7 @@ def clean_old_files(directory, days=7):
 
 def update_index_html():
     """
-    Update index.html with the most recent HTML file from history directory
+    Update index.html with the most recent HTML file from bot_info directory
 
     Returns:
         Path to the updated index.html file
@@ -83,11 +83,11 @@ def update_index_html():
     import shutil
 
     try:
-        # Find most recent HTML file in history directory
-        html_files = list(HISTORY_DIR.glob("*.html"))
+        # Check for HTML files in bot_info directory
+        html_files = list(BOT_INFO_DIR.glob("*.html"))
 
         if not html_files:
-            logger.warning("No HTML files found in history directory")
+            logger.warning("No HTML files found in bot_info directory")
             return None
 
         # Sort by modification time (newest first)
@@ -133,8 +133,8 @@ def main():
     # Clean old files
     if args.clean_old_files or args.all:
         logger.info(f"Cleaning old files (older than {args.days} days)...")
-        clean_old_files(HISTORY_DIR, days=args.days)
         clean_old_files(JSON_DIR, days=args.days)
+        clean_old_files(BOT_INFO_DIR, days=args.days)
         clean_old_files(LOGS_DIR, days=args.days)
         logger.info("Cleanup complete")
 

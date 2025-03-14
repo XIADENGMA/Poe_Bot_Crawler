@@ -2,6 +2,8 @@
 .env
 logs/*
 outpus/*
+.ai/
+logs/
 
 # Python
 __pycache__/
@@ -16,6 +18,7 @@ env/
 env.bak/
 venv.bak/
 .python-version
+src/__pycache__/
 
 # VSCode
 .vscode/

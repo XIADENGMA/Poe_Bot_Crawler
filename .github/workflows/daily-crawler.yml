@@ -64,123 +64,25 @@ jobs:
         run: |
           # 验证环境变量是否可以加载
           python -c "from dotenv import load_dotenv; import os; load_dotenv(); print('P_B loaded:', bool(os.getenv('P_B'))); print('P_LAT loaded:', bool(os.getenv('P_LAT')))"
+
+          # 确保目录结构存在
+          mkdir -p output/result/history output/json output/bots logs
+
           # 运行爬虫程序
           python -m src.main
 
-          # 确保output/result目录存在
-          mkdir -p output/result
+          # 确保运行维护程序
+          python -m src.maintenance --all
 
-          # 处理HTML文件
-          if [ -d "output" ] && [ "$(find output -name "*.html" | wc -l)" -gt 0 ]; then
-            echo "处理HTML文件..."
-
-            # 列出所有HTML文件以便调试
-            echo "找到的HTML文件列表:"
-            find output -name "*.html" -type f | sort
-
-            # 当前日期
-            CURRENT_DATE=$(date +'%Y-%m-%d')
-            echo "当前日期: $CURRENT_DATE"
-
-            # 检查是否存在当天生成的bots_DATE.html文件
-            EXPECTED_HTML="output/result/bots_${CURRENT_DATE}.html"
-            if [ -f "$EXPECTED_HTML" ]; then
-              echo "找到当天生成的文件: $EXPECTED_HTML"
-              LATEST_HTML="$EXPECTED_HTML"
-            else
-              echo "未找到当天生成的文件 $EXPECTED_HTML，尝试查找其他位置..."
-
-              # 也检查在output根目录的情况
-              ALT_EXPECTED_HTML="output/bots_${CURRENT_DATE}.html"
-              if [ -f "$ALT_EXPECTED_HTML" ]; then
-                echo "在output根目录找到了当天生成的文件: $ALT_EXPECTED_HTML"
-                LATEST_HTML="$ALT_EXPECTED_HTML"
-              else
-                echo "在output根目录也未找到当天生成的文件，尝试在所有目录中查找最新的HTML文件..."
-                # 1. 如果已存在index.html文件，将其重命名为带日期的文件
-                if [ -f "output/result/index.html" ]; then
-                  # 获取文件的最后修改日期
-                  FILE_MOD_DATE=$(date -r "output/result/index.html" +'%Y-%m-%d')
-                  # 重命名为带日期的文件名
-                  echo "将现有index.html重命名为archive-${FILE_MOD_DATE}.html"
-                  mv "output/result/index.html" "output/result/archive-${FILE_MOD_DATE}.html"
-                fi
-
-                # 2. 找到最新生成的HTML文件（明确排除output/result目录中的文件）
-                echo "搜索output目录中的HTML文件（排除output/result目录）..."
-                HTML_FILES=$(find output -type f -name "*.html" -not -path "output/result/*" | sort)
-                echo "找到以下非result目录的HTML文件:"
-                echo "$HTML_FILES"
-
-                if [ -z "$HTML_FILES" ]; then
-                  echo "警告: 未找到output目录中除result子目录外的HTML文件"
-                  # 尝试从目录结构中寻找最近的HTML文件
-                  LATEST_HTML=$(find . -type f -name "*.html" -not -path "./output/result/*" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
-                  echo "从整个项目中找到的最新HTML文件是: $LATEST_HTML"
-                else
-                  # 获取最新的HTML文件
-                  LATEST_HTML=$(find output -type f -name "*.html" -not -path "output/result/*" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
-                  echo "最新的HTML文件是: $LATEST_HTML"
-                fi
-              fi
-            fi
-
-            # 处理找到的最新HTML文件
-            if [ -n "$LATEST_HTML" ]; then
-              echo "将最新HTML文件 $LATEST_HTML 复制为 index.html"
-
-              # 检查文件是否已经在result目录中
-              if [[ "$LATEST_HTML" == "output/result/"* && "$(basename "$LATEST_HTML")" != "index.html" ]]; then
-                echo "文件已经在result目录，直接重命名而不是复制"
-                mv "$LATEST_HTML" "output/result/index.html"
-              else
-                # 其他情况直接复制
-                cp "$LATEST_HTML" "output/result/index.html"
-              fi
-
-              # 确认复制成功
-              if [ -f "output/result/index.html" ]; then
-                echo "成功创建 output/result/index.html"
-                echo "文件内容前几行:"
-                head -n 10 "output/result/index.html"
-              else
-                echo "错误: 复制到 output/result/index.html 失败"
-              fi
-
-              # 复制其他HTML文件到result目录
-              echo "复制其他HTML文件到result目录..."
-              HTML_FILES_COUNT=0
-              for html_file in $(find output -type f -name "*.html" -not -path "output/result/*"); do
-                if [ "$html_file" != "$LATEST_HTML" ]; then
-                  filename=$(basename "$html_file")
-                  echo "复制 $html_file 到 output/result/$filename"
-                  cp "$html_file" "output/result/$filename"
-                  HTML_FILES_COUNT=$((HTML_FILES_COUNT + 1))
-                fi
-              done
-
-              echo "共复制了 $HTML_FILES_COUNT 个额外的HTML文件到result目录"
-            else
-              echo "错误: 无法确定最新的HTML文件"
-              echo "<html><body><h1>Error</h1><p>Failed to find any HTML files to use as the index. Please check the logs.</p></body></html>" > "output/result/index.html"
-              echo "创建了一个错误页面作为index.html"
-            fi
-
-            # 确保index.html存在
-            if [ ! -f "output/result/index.html" ]; then
-              echo "警告: result目录中没有index.html文件，创建一个简单的占位文件"
-              echo "<html><body><h1>Poe Bots Data</h1><p>No data found for today. Please check the logs.</p></body></html>" > "output/result/index.html"
-            fi
-
-            # 显示结果目录中的文件
-            echo "output/result 目录中的文件:"
-            ls -la output/result/
-          else
-            echo "未找到HTML文件，请检查爬虫输出"
-            # 确保在没有找到文件时也创建一个index.html
-            mkdir -p output/result
-            echo "<html><body><h1>No HTML Files Found</h1><p>No HTML files were found in the output directory. Please check the crawler logs.</p></body></html>" > "output/result/index.html"
-          fi
+          # 显示结果文件
+          echo "===== 生成的结果文件 ====="
+          ls -la output/json/
+          echo "===== HTML文件 ====="
+          ls -la output/result/history/
+          echo "===== index.html ====="
+          ls -la output/result/index.html
+          echo "===== 日志文件 ====="
+          ls -la logs/
 
       - name: Configure Git
         run: |
@@ -200,8 +102,6 @@ jobs:
       - name: Commit and push changes
         run: |
           DATE=$(date +'%Y-%m-%d')
-          # 确保输出目录存在
-          mkdir -p output/result logs
           # 检查是否有更改需要提交
           git add output/ logs/
           if git diff --staged --quiet; then

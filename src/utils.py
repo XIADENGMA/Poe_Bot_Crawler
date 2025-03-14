@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import shutil
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -22,9 +23,10 @@ OUTPUT_DIR = BASE_DIR / "output"
 JSON_DIR = OUTPUT_DIR / "json"
 BOTS_DIR = OUTPUT_DIR / "bots"
 RESULT_DIR = OUTPUT_DIR / "result"
+HISTORY_DIR = RESULT_DIR / "history"
 
 # Ensure all directories exist
-for directory in [OUTPUT_DIR, JSON_DIR, BOTS_DIR, RESULT_DIR]:
+for directory in [OUTPUT_DIR, JSON_DIR, BOTS_DIR, RESULT_DIR, HISTORY_DIR]:
     directory.mkdir(exist_ok=True)
 
 # Current date formatted as YYYY-MM-DD
@@ -77,3 +79,62 @@ def load_json(filepath):
     """
     with open(filepath, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def clean_old_files(directory, days=7):
+    """
+    Delete files in directory that are older than specified days
+
+    Args:
+        directory: Directory to clean
+        days: Number of days to keep files for (default 7)
+    """
+    now = datetime.datetime.now()
+    cutoff = now - datetime.timedelta(days=days)
+
+    for file_path in directory.glob("*"):
+        if file_path.is_file():
+            try:
+                # Get file modification time
+                mtime = datetime.datetime.fromtimestamp(file_path.stat().st_mtime)
+
+                # Check if file is older than cutoff
+                if mtime < cutoff:
+                    file_path.unlink()
+                    print(f"Deleted old file: {file_path}")
+            except Exception as e:
+                print(f"Error processing file {file_path}: {e}")
+
+
+def update_index_html():
+    """
+    Update index.html with the most recent HTML file from history directory
+
+    Returns:
+        Path to the updated index.html file
+    """
+    import logging
+    import shutil
+
+    logger = logging.getLogger(__name__)
+
+    try:
+        # Find most recent HTML file in history directory
+        html_files = list(HISTORY_DIR.glob("*.html"))
+
+        if not html_files:
+            logger.warning("No HTML files found in history directory")
+            return None
+
+        # Sort by modification time (newest first)
+        most_recent_file = max(html_files, key=lambda f: f.stat().st_mtime)
+
+        # Copy to index.html
+        index_path = RESULT_DIR / "index.html"
+        shutil.copy2(most_recent_file, index_path)
+
+        logger.info(f"Updated index.html with content from {most_recent_file}")
+        return index_path
+    except Exception as e:
+        logger.error(f"Error updating index.html: {e}")
+        return None

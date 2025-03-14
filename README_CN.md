@@ -9,6 +9,9 @@
 3. 解析积分定价信息
 4. 生成 HTML 仪表盘以可视化结果
 5. 支持通过 GitHub Actions 进行自动化每日更新
+6. 自动将 HTML 文件归档到历史目录
+7. 将最新的 HTML 文件作为 index.html 维护
+8. 通过清理 7 天以上的旧文件进行数据管理
 
 ## 系统要求
 
@@ -45,31 +48,65 @@ P_LAT=your_p-lat_cookie
 
 ## 使用方法
 
-1. 运行主程序：
+### 完整工作流程
+
+该项目的典型工作流程包括三个主要步骤：
+
+1. **数据爬取**：运行主爬虫程序从 Poe 获取机器人数据
+2. **HTML 生成**：爬虫自动生成 HTML 仪表盘
+3. **维护**：运行维护任务管理文件并保持仪表盘更新
+
+#### 步骤 1：运行爬虫
 
 ```bash
-# 如果已安装为包
-poe-crawler
-
-# 或直接运行脚本
+# 直接运行爬虫脚本
 python src/main.py
 ```
 
-2. 查看结果：
+这将会：
 
-   - 机器人列表保存在 `output/json/` 目录中
-   - 机器人详情保存在 `output/bots/` 目录中
-   - HTML 仪表盘保存在 `output/result/` 目录中
+- 从 Poe 获取官方机器人列表
+- 收集每个机器人的详细信息
+- 解析价格信息
+- 在`output/result/history/`目录中生成 HTML 仪表盘
+- 将仪表盘复制到`output/result/index.html`
+- 清理超过 7 天的旧文件
+- 输出生成文件的路径
 
-3. 在浏览器中查看 HTML 仪表盘：
+#### 步骤 2：查看结果
+
+导航到输出目录并在浏览器中打开 HTML 文件：
 
 ```bash
-# 如果已安装为包
-view-html
+# Linux/macOS
+open output/result/index.html
 
-# 或直接运行脚本
-python view_html.py
+# Windows
+start output/result/index.html
 ```
+
+或者，您可以直接在您喜欢的网页浏览器中打开该文件。
+
+#### 步骤 3：手动维护（如需要）
+
+如果您需要手动更新 index.html 文件或清理旧文件：
+
+```bash
+# 运行所有维护任务
+python src/maintenance.py
+
+# 或运行特定任务
+python src/maintenance.py --update-index
+python src/maintenance.py --clean-old-files
+python src/maintenance.py --clean-old-files --days 14
+```
+
+### 查看结果
+
+- 机器人列表保存在 `output/json/` 目录中
+- 机器人详情保存在 `output/bots/` 目录中
+- HTML 仪表盘保存在 `output/result/history/` 目录中
+- 最新的 HTML 仪表盘可通过 `output/result/index.html` 访问
 
 ## 自动化更新
 
@@ -105,13 +142,14 @@ Poe_crawler/
 │   ├── bot_list.py       # 获取机器人列表的函数
 │   ├── bot_details.py    # 获取机器人详情的函数
 │   ├── html_generator.py # 生成 HTML 仪表盘的函数
+│   ├── maintenance.py    # 维护工具
 │   └── utils.py          # 工具函数
-├── beautify_html.py      # 美化 HTML 输出的脚本
-├── view_html.py          # 在浏览器中查看结果的脚本
 └── output/               # 输出目录
     ├── json/             # 包含机器人列表的 JSON 文件
     ├── bots/             # 包含机器人详情的 JSON 文件
     └── result/           # 生成的 HTML 仪表盘
+        ├── index.html    # 最新的 HTML 仪表盘
+        └── history/      # 历史 HTML 文件存档
 ```
 
 ## 开发
@@ -145,7 +183,8 @@ mypy src/ view_html.py
 
 1. `output/json/official_bots_list_YYYY-MM-DD.json` - 初始机器人列表
 2. `output/json/official_bots_with_prices_YYYY-MM-DD.json` - 带有定价详情的机器人列表
-3. `output/result/bots_YYYY-MM-DD.html` - 显示所有机器人及其详情的 HTML 仪表盘
+3. `output/result/history/bots_YYYY-MM-DD.html` - 显示所有机器人及其详情的 HTML 仪表盘
+4. `output/result/index.html` - 最新 HTML 仪表盘的副本
 
 ## 许可证
 
@@ -154,3 +193,20 @@ MIT
 ## 贡献
 
 欢迎贡献！请随时提交 Pull Request。
+
+## 数据管理
+
+爬虫自动管理历史数据：
+
+1. HTML 文件保存到 `output/result/history/` 目录
+2. 最新的 HTML 文件会被复制为 `output/result/index.html`
+3. 超过 7 天的文件会从以下目录自动清理：
+   - `output/json/`
+   - `output/result/history/`
+   - `logs/`
+
+您可以使用维护脚本手动管理数据：
+
+```bash
+python src/maintenance.py
+```

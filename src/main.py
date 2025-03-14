@@ -11,7 +11,7 @@ if str(script_dir) not in sys.path:
 from bot_list import get_official_bots
 from bot_details import get_bot_details, save_bot_details
 from html_generator import generate_html
-from utils import save_json, JSON_DIR, CURRENT_DATE, BASE_DIR
+from utils import save_json, JSON_DIR, CURRENT_DATE, BASE_DIR, HISTORY_DIR, clean_old_files
 
 # Ensure logs directory exists
 LOGS_DIR = BASE_DIR / "logs"
@@ -59,6 +59,13 @@ def main():
         # Step 4: Generate HTML display
         html_filepath = generate_html(updated_bots_data)
         logger.info(f"Generated HTML display at {html_filepath}")
+
+        # Step 5: Clean up old files
+        logger.info("Cleaning up old files...")
+        clean_old_files(HISTORY_DIR, days=7)
+        clean_old_files(JSON_DIR, days=7)
+        clean_old_files(LOGS_DIR, days=7)
+        logger.info("Cleanup complete - files older than 7 days have been removed")
 
         logger.info("Poe crawler completed successfully")
         print(f"\nResults saved to:")

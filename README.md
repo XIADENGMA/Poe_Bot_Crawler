@@ -11,6 +11,9 @@ A tool for crawling and collecting data about AI bots on the Poe platform, inclu
 3. Parses credit pricing information
 4. Generates an HTML dashboard to visualize the results
 5. Supports automated daily updates via GitHub Actions
+6. Automatically archives HTML files to a history directory
+7. Maintains the most recent HTML file as index.html
+8. Performs data management by cleaning up files older than 7 days
 
 ## Requirements
 
@@ -47,31 +50,65 @@ P_LAT=your_p-lat_cookie
 
 ## Usage
 
-1. Run the main program:
+### Complete Workflow
+
+A typical workflow for this project consists of three main steps:
+
+1. **Data Crawling**: Run the main crawler to fetch bot data from Poe
+2. **HTML Generation**: The crawler automatically generates an HTML dashboard
+3. **Maintenance**: Run maintenance tasks to manage files and keep the dashboard updated
+
+#### Step 1: Run the crawler
 
 ```bash
-# If installed as a package
-poe-crawler
-
-# Or run the script directly
+# Run the crawler script directly
 python src/main.py
 ```
 
-2. View the results:
+This will:
 
-   - Bot list is saved in the `output/json/` directory
-   - Bot details are saved in the `output/bots/` directory
-   - HTML dashboard is saved in the `output/result/` directory
+- Fetch the official bot list from Poe
+- Collect detailed information for each bot
+- Parse pricing information
+- Generate an HTML dashboard in the `output/result/history/` directory
+- Copy the dashboard to `output/result/index.html`
+- Clean up files older than 7 days
+- Output file paths for the generated files
 
-3. View the HTML dashboard in a browser:
+#### Step 2: View the results
+
+Navigate to the output directory and open the HTML file in your browser:
 
 ```bash
-# If installed as a package
-view-html
+# Linux/macOS
+open output/result/index.html
 
-# Or run the script directly
-python view_html.py
+# Windows
+start output/result/index.html
 ```
+
+Alternatively, you can directly open the file in your preferred web browser.
+
+#### Step 3: Manual maintenance (if needed)
+
+If you need to update the index.html file or clean up old files manually:
+
+```bash
+# Run all maintenance tasks
+python src/maintenance.py
+
+# Or run specific tasks
+python src/maintenance.py --update-index
+python src/maintenance.py --clean-old-files
+python src/maintenance.py --clean-old-files --days 14
+```
+
+### View the results
+
+- Bot list is saved in the `output/json/` directory
+- Bot details are saved in the `output/bots/` directory
+- HTML dashboard is saved in the `output/result/history/` directory
+- Most recent HTML dashboard is available as `output/result/index.html`
 
 ## Automated Updates
 
@@ -98,6 +135,7 @@ The GitHub Actions workflow will use these secrets to authenticate with Poe and 
 ```
 Poe_crawler/
 ├── README.md             # Project documentation
+├── README_CN.md          # Project documentation (Chinese)
 ├── pyproject.toml        # Project configuration and dependencies
 ├── .env                  # Environment variables (not in version control)
 ├── src/                  # Source code directory
@@ -106,13 +144,14 @@ Poe_crawler/
 │   ├── bot_list.py       # Functions to retrieve bot list
 │   ├── bot_details.py    # Functions to get bot details
 │   ├── html_generator.py # Functions to generate HTML dashboard
+│   ├── maintenance.py    # Maintenance utilities
 │   └── utils.py          # Utility functions
-├── beautify_html.py      # Script to beautify HTML output
-├── view_html.py          # Script to view results in browser
 └── output/               # Output directory
     ├── json/             # JSON files with bot lists
     ├── bots/             # JSON files with bot details
     └── result/           # Generated HTML dashboards
+        ├── index.html    # Most recent HTML dashboard
+        └── history/      # Archive of historical HTML files
 ```
 
 ## Development
@@ -146,7 +185,8 @@ The crawler generates several output files:
 
 1. `output/json/official_bots_list_YYYY-MM-DD.json` - Initial bot list
 2. `output/json/official_bots_with_prices_YYYY-MM-DD.json` - Bot list with pricing details
-3. `output/result/bots_YYYY-MM-DD.html` - HTML dashboard displaying all bots with their details
+3. `output/result/history/bots_YYYY-MM-DD.html` - HTML dashboard displaying all bots with their details
+4. `output/result/index.html` - Copy of the most recent HTML dashboard
 
 ## License
 
@@ -155,3 +195,20 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Data Management
+
+The crawler automatically manages historical data:
+
+1. HTML files are saved to `output/result/history/` directory
+2. The most recent HTML file is copied to `output/result/index.html`
+3. Files older than 7 days are automatically cleaned up from:
+   - `output/json/`
+   - `output/result/history/`
+   - `logs/`
+
+You can manually manage data using the maintenance script:
+
+```bash
+python src/maintenance.py
+```

@@ -1,9 +1,10 @@
 import logging
 from pathlib import Path
+import shutil
 
 from jinja2 import Template
 
-from utils import CURRENT_DATE, RESULT_DIR
+from utils import CURRENT_DATE, RESULT_DIR, HISTORY_DIR
 
 # Configure logging - use the logger from the main module
 logger = logging.getLogger("src.html_generator")
@@ -1412,7 +1413,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 card.classList.remove('animate-in');
             });
 
-            // Apply filters
+            // Apply filtering
             cards.forEach(card => {
                 const name = card.getAttribute('data-name').toLowerCase();
                 const handle = card.getAttribute('data-handle').toLowerCase();
@@ -1434,24 +1435,24 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             });
 
             // Apply sorting
-            if (sortOption !== 'name-asc') {
-                const sortedCards = [...cards].filter(card => card.style.display !== 'none').sort((a, b) => {
-                    if (sortOption === 'name-desc') {
-                        return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
-                    } else if (sortOption === 'price-asc') {
-                        return parseFloat(a.getAttribute('data-standard-price')) - parseFloat(b.getAttribute('data-standard-price'));
-                    } else if (sortOption === 'price-desc') {
-                        return parseFloat(b.getAttribute('data-standard-price')) - parseFloat(a.getAttribute('data-standard-price'));
-                    }
-                    return 0;
-                });
+            const sortedCards = [...cards].filter(card => card.style.display !== 'none').sort((a, b) => {
+                if (sortOption === 'name-asc') {
+                    return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+                } else if (sortOption === 'name-desc') {
+                    return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
+                } else if (sortOption === 'price-asc') {
+                    return parseFloat(a.getAttribute('data-standard-price')) - parseFloat(b.getAttribute('data-standard-price'));
+                } else if (sortOption === 'price-desc') {
+                    return parseFloat(b.getAttribute('data-standard-price')) - parseFloat(a.getAttribute('data-standard-price'));
+                }
+                return 0;
+            });
 
-                // Reappend cards in the new order
-                const grid = document.getElementById('bot-grid');
-                sortedCards.forEach(card => {
-                    grid.appendChild(card);
-                });
-            }
+            // Reappend cards in the new order
+            const grid = document.getElementById('bot-grid');
+            sortedCards.forEach(card => {
+                grid.appendChild(card);
+            });
 
             // Show no results message if needed
             if (visibleCount === 0) {
@@ -1591,15 +1592,22 @@ def generate_html(bots_data):
             bots=bots_data, date=CURRENT_DATE, current_year=datetime.datetime.now().year
         )
 
-        # Save HTML file
-        filename = f"bots_{CURRENT_DATE}.html"
-        filepath = RESULT_DIR / filename
+        # Save HTML file to history directory
+        history_filename = f"bots_{CURRENT_DATE}.html"
+        history_filepath = HISTORY_DIR / history_filename
 
-        with open(filepath, "w", encoding="utf-8") as f:
+        with open(history_filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
 
-        logger.info(f"HTML display generated and saved to {filepath}")
-        return filepath
+        # Copy the latest file to index.html
+        index_filepath = RESULT_DIR / "index.html"
+        shutil.copy2(history_filepath, index_filepath)
+
+        logger.info(f"HTML display generated and saved to {history_filepath}")
+        logger.info(f"Latest HTML copy saved as {index_filepath}")
+        logger.info(f"Generated HTML display at {history_filepath}")
+
+        return history_filepath
     except Exception as e:
         logger.error(f"Error generating HTML display: {e}")
         raise

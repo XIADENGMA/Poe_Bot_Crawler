@@ -164,13 +164,13 @@ uv pip install -e ".[dev]"
 
 ```bash
 # 格式化代码
-black src/ view_html.py
+black src/
 
 # 排序导入
-isort src/ view_html.py
+isort src/
 
 # 类型检查
-mypy src/ view_html.py
+mypy src/
 ```
 
 ## 日志

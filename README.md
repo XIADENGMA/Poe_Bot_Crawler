@@ -166,13 +166,13 @@ Code formatting and checking:
 
 ```bash
 # Format code
-black src/ view_html.py
+black src/
 
 # Sort imports
-isort src/ view_html.py
+isort src/
 
 # Type checking
-mypy src/ view_html.py
+mypy src/
 ```
 
 ## Logs

@@ -102,8 +102,8 @@ jobs:
       - name: Commit and push changes
         run: |
           DATE=$(date +'%Y-%m-%d')
-          # 检查是否有更改需要提交
-          git add output/ logs/
+          # 只添加未被忽略的目录
+          git add output/
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else

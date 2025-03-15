@@ -798,15 +798,11 @@
             </div>
             <div class="header-content">
                 <h1><img src="assets/favicon.svg" alt="Poe Logo" class="poe-logo">Poe 机器人积分价格</h1>
-<<<<<<< HEAD
-                <p>数据更新时间: 2025-03-15</p>
-=======
                 <div class="info">
                     <p>数据更新时间: 2025-03-15</p>
                     <p>共 181 个机器人，其中 173 个付费机器人</p>
                     
                 </div>
->>>>>>> b907884 (:rocket: result: Generates and saves bot pricing data)
             </div>
         </header>
 
@@ -1655,18 +1651,6 @@
                 </div>
                 <div class="bot-content">
                     <div class="bot-description">Powered by gemini-1.5-pro-002. The multi-modal model from Google's Gemini family that balances model performance and speed. The model accepts text, image, and video input from the entire conversation and provides text output, with a restriction of one video per message.</div>
-<<<<<<< HEAD
-
-                    <div class="creator-info">
-                        
-                            
-                            <img class="creator-avatar" src="https://qph.cf2.poecdn.net/main-thumb-2910402837-50-hdxyjsuznjtgwrszmhvbhgbviwdhkwvl.jpeg" alt="Google">
-                            
-                            <div class="creator-name">Google</div>
-                        
-                    </div>
-=======
->>>>>>> 807cdfc (```)
 
                     <div class="price-info">
                         <h3 class="price-title">积分价格</h3>
@@ -2385,18 +2369,6 @@
                 </div>
                 <div class="bot-content">
                     <div class="bot-description">Gemini model optimized for narrower or high-frequency tasks where the speed of the model’s response time matters the most. For most use cases, https://poe.com/Gemini-2.0-Flash will be better. The model accepts text, image, and video input from the entire conversation and provides text output, with a restriction of one video per message.</div>
-<<<<<<< HEAD
-
-                    <div class="creator-info">
-                        
-                            
-                            <img class="creator-avatar" src="https://qph.cf2.poecdn.net/main-thumb-2910402837-50-hdxyjsuznjtgwrszmhvbhgbviwdhkwvl.jpeg" alt="Google">
-                            
-                            <div class="creator-name">Google</div>
-                        
-                    </div>
-=======
->>>>>>> 807cdfc (```)
 
                     <div class="price-info">
                         <h3 class="price-title">积分价格</h3>
@@ -7507,18 +7479,6 @@ The points price is subject to change.</div>
                 </div>
                 <div class="bot-content">
                     <div class="bot-description">Anthropic's Claude 3 Haiku provides strong performance, speed and cost. For most use cases, https://poe.com/Claude-3.5-Haiku will produce better results. Context window is optimized for cost.</div>
-<<<<<<< HEAD
-
-                    <div class="creator-info">
-                        
-                            
-                            <img class="creator-avatar" src="https://qph.cf2.poecdn.net/main-thumb-2910399423-50-rmsjsjntoqqejhymvulgknulhathfdmz.jpeg" alt="Anthropic">
-                            
-                            <div class="creator-name">Anthropic</div>
-                        
-                    </div>
-=======
->>>>>>> 807cdfc (```)
 
                     <div class="price-info">
                         <h3 class="price-title">积分价格</h3>
@@ -12160,245 +12120,6 @@ It demonstrates exceptional performance in complex problem-solving, achieving im
         botCards.forEach(card => {
             cardObserver.observe(card);
         });
-<<<<<<< HEAD
-
-        // Listen for system preference changes
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            // Only automatically change if user hasn't manually set a preference
-            if (!localStorage.getItem('poe-theme')) {
-                setTheme(e.matches ? 'dark' : 'light');
-            }
-        });
-
-        // Initialize animation effects
-        function initAnimations() {
-            // Observe each bot card for scroll animation
-            botCards.forEach(card => {
-                cardObserver.observe(card);
-
-                // Make bot cards clickable
-                card.addEventListener('click', function(e) {
-                    // Only navigate if the click was not on an anchor tag or its children
-                    if (!e.target.closest('a') && !e.target.closest('button')) {
-                        const handle = this.getAttribute('data-handle');
-                        if (handle) {
-                            window.open(`https://poe.com/${handle}`, '_blank');
-                        }
-                    }
-                });
-
-                // Add description expand functionality
-                const description = card.querySelector('.bot-description');
-                if (description && description.scrollHeight > description.clientHeight) {
-                    const expandBtn = document.createElement('button');
-                    expandBtn.className = 'expand-btn';
-                    expandBtn.textContent = '展开描述';
-
-                    expandBtn.addEventListener('click', () => {
-                        if (description.classList.contains('expanded')) {
-                            description.classList.remove('expanded');
-                            expandBtn.textContent = '展开描述';
-                            // Scroll back to the card top when collapsing
-                            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        } else {
-                            description.classList.add('expanded');
-                            expandBtn.textContent = '收起描述';
-                        }
-                    });
-
-                    // Insert the button after the description
-                    description.parentNode.insertBefore(expandBtn, description.nextSibling);
-                }
-            });
-        }
-
-        // Initialize theme on page load
-        initTheme();
-
-        // Initialize animations when DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', initAnimations);
-
-        // Search and filter functionality
-        const searchInput = document.getElementById('search-input');
-        const searchClear = document.getElementById('search-clear');
-        const priceFilter = document.getElementById('price-filter');
-        const sortOptions = document.getElementById('sort-options');
-        const noResults = document.getElementById('no-results');
-
-        // Handle search input
-        function handleSearch() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const priceFilterValue = priceFilter.value;
-            const sortValue = sortOptions.value;
-
-            // Filter cards based on search term and filter options
-            filterAndSortCards(searchTerm, priceFilterValue, sortValue);
-        }
-
-        // Filter and sort cards
-        function filterAndSortCards(searchTerm, priceType, sortOption) {
-            let visibleCount = 0;
-            const cards = [...document.querySelectorAll('.bot-card:not(.no-results)')];
-
-            // First, reset all cards to visible for the filter process
-            cards.forEach(card => {
-                card.style.display = 'flex';
-                // Remove animation class to re-apply it later
-                card.classList.remove('animate-in');
-            });
-
-            // Apply filtering
-            cards.forEach(card => {
-                const name = card.getAttribute('data-name').toLowerCase();
-                const handle = card.getAttribute('data-handle').toLowerCase();
-                const description = card.getAttribute('data-description').toLowerCase();
-                const cardPriceType = card.getAttribute('data-pricing-type');
-
-                const searchMatch = searchTerm === '' ||
-                                   name.includes(searchTerm) ||
-                                   handle.includes(searchTerm) ||
-                                   description.includes(searchTerm);
-
-                const priceMatch = priceType === 'all' || cardPriceType === priceType;
-
-                if (searchMatch && priceMatch) {
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            // Apply sorting
-            const sortedCards = [...cards].filter(card => card.style.display !== 'none').sort((a, b) => {
-                if (sortOption === 'name-asc') {
-                    return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
-                } else if (sortOption === 'name-desc') {
-                    return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
-                } else if (sortOption === 'price-asc') {
-                    return parseFloat(a.getAttribute('data-standard-price')) - parseFloat(b.getAttribute('data-standard-price'));
-                } else if (sortOption === 'price-desc') {
-                    return parseFloat(b.getAttribute('data-standard-price')) - parseFloat(a.getAttribute('data-standard-price'));
-                }
-                return 0;
-            });
-
-            // Reappend cards in the new order
-            const grid = document.getElementById('bot-grid');
-            sortedCards.forEach(card => {
-                grid.appendChild(card);
-            });
-
-            // Show no results message if needed
-            if (visibleCount === 0) {
-                noResults.style.display = 'block';
-            } else {
-                noResults.style.display = 'none';
-
-                // Re-observe visible cards for animation
-                setTimeout(() => {
-                    const visibleCards = document.querySelectorAll('.bot-card:not([style*="display: none"])');
-                    visibleCards.forEach(card => {
-                        cardObserver.observe(card);
-                    });
-                }, 100);
-            }
-        }
-
-        // Clear search
-        searchClear.addEventListener('click', () => {
-            searchInput.value = '';
-            handleSearch();
-            searchInput.focus();
-        });
-
-        // Event listeners for search and filter controls
-        searchInput.addEventListener('input', handleSearch);
-        priceFilter.addEventListener('change', handleSearch);
-        sortOptions.addEventListener('change', handleSearch);
-
-        // Reset filters button
-        function addResetButton() {
-            const resetBtn = document.createElement('button');
-            resetBtn.textContent = '重置筛选';
-            resetBtn.className = 'filter-reset';
-            resetBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                priceFilter.value = 'all';
-                sortOptions.value = 'name-asc';
-                handleSearch();
-            });
-
-            // Add to filter options
-            document.querySelector('.filter-options').appendChild(resetBtn);
-
-            // Add CSS
-            const resetStyle = document.createElement('style');
-            resetStyle.textContent = `
-                .filter-reset {
-                    padding: 10px 15px;
-                    border-radius: 8px;
-                    border: 1px solid var(--primary-color);
-                    background-color: var(--primary-color);
-                    color: white;
-                    font-size: 0.95rem;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
-
-                .filter-reset:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-                }
-
-                @media (max-width: 768px) {
-                    .search-filter-container {
-                        flex-direction: column;
-                        align-items: stretch;
-                    }
-
-                    .filter-options {
-                        justify-content: space-between;
-                    }
-
-                    .filter-select, .filter-reset {
-                        flex: 1;
-                    }
-                }
-            `;
-            document.head.appendChild(resetStyle);
-        }
-
-        addResetButton();
-
-        // Add additional animation styles
-        const additionalStyles = document.createElement('style');
-        additionalStyles.textContent = `
-            .theme-transition {
-                transition: background-color 0.5s ease, color 0.5s ease;
-            }
-
-            .toggle-bounce {
-                animation: bounce 0.3s ease;
-            }
-
-            @keyframes bounce {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.1); }
-            }
-
-            .price-title::after {
-                animation: slideIn 1s ease-out;
-            }
-
-            @keyframes slideIn {
-                from { width: 0; }
-                to { width: 60px; }
-            }
-        `;
-        document.head.appendChild(additionalStyles);
-=======
->>>>>>> b907884 (:rocket: result: Generates and saves bot pricing data)
     </script>
 </body>
 </html>

@@ -1,10 +1,22 @@
 import logging
 from pathlib import Path
 import shutil
+import sys
+import os
 
 from jinja2 import Template
 
-from utils import CURRENT_DATE, RESULT_DIR
+# Try different import methods to be compatible with different ways of running
+try:
+    from src.utils import CURRENT_DATE, RESULT_DIR
+except ModuleNotFoundError:
+    try:
+        from utils import CURRENT_DATE, RESULT_DIR
+    except ModuleNotFoundError:
+        # Add parent directory to path if needed
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from src.utils import CURRENT_DATE, RESULT_DIR
+
 # Define a custom BOT_INFO_DIR path
 BOT_INFO_DIR = Path('output/result/bot_info')
 BOT_INFO_DIR.mkdir(exist_ok=True, parents=True)
@@ -380,7 +392,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         .bot-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 25px;
             margin-top: 30px;
         }
@@ -433,6 +445,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             font-weight: 600;
         }
 
+        .bot-handle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
         .bot-handle {
             font-size: 0.85rem;
             color: var(--light-text);
@@ -448,6 +467,67 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .bot-name a:hover, .bot-handle a:hover {
             color: var(--primary-color);
             text-decoration: underline;
+        }
+
+        /* Make the whole card not clickable by default */
+        .bot-card a {
+            text-decoration: none;
+            color: inherit;
+            pointer-events: none;
+        }
+
+        /* But enable clicks specifically on the avatar and name elements */
+        .bot-avatar, .bot-name a, .bot-handle a {
+            pointer-events: auto;
+        }
+
+        /* Style for the creator info in the header */
+        .header-creator-info {
+            margin-left: auto;
+            padding: 0;
+            background-color: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-creator-info .creator-avatar {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+
+        .header-creator-info .creator-name {
+            font-size: 0.85rem;
+            color: var(--light-text);
+        }
+
+        /* Style for the inline creator info */
+        .inline-creator-info {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 3px 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            margin-right: 10px;
+        }
+
+        .inline-creator-info .creator-avatar {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        .inline-creator-info .creator-name {
+            font-size: 0.75rem;
+            color: var(--light-text);
+            font-weight: normal;
         }
 
         .bot-content {
@@ -601,7 +681,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         @media (max-width: 768px) {
             .bot-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                grid-template-columns: repeat(2, 1fr);
                 gap: 20px;
             }
 
@@ -634,6 +714,24 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             .price-title {
                 font-size: 1.1rem;
             }
+
+            .header-creator-info .creator-name {
+                font-size: 0.8rem;
+            }
+
+            .header-creator-info .creator-avatar {
+                width: 20px;
+                height: 20px;
+            }
+
+            .inline-creator-info .creator-name {
+                font-size: 0.8rem;
+            }
+
+            .inline-creator-info .creator-avatar {
+                width: 16px;
+                height: 16px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -652,6 +750,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
             .bot-card {
                 max-width: 100%;
+            }
+
+            .header-creator-info {
+                margin-left: 0;
+                margin-top: 10px;
+                position: absolute;
+                top: 70px;
+                right: 20px;
+            }
+
+            .bot-header {
+                flex-wrap: wrap;
+                padding-bottom: 40px;
+            }
+
+            .bot-handle-container {
+                flex-wrap: wrap;
+            }
+
+            .inline-creator-info {
+                margin-left: 0;
+                margin-top: 5px;
             }
         }
 
@@ -745,25 +865,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                  data-pricing-type="{{ bot.points_price.pricing_type if bot.points_price else 'unknown' }}"
                  data-standard-price="{{ bot.points_price.standard_message.value if bot.points_price and bot.points_price.standard_message else '0' }}">
                 <div class="bot-header">
-                    <img class="bot-avatar" src="{{ bot.picture_url }}" alt="{{ bot.display_name }}">
+                    <a href="https://poe.com/{{ bot.handle }}" target="_blank"><img class="bot-avatar" src="{{ bot.picture_url }}" alt="{{ bot.display_name }}"></a>
                     <div>
                         <h3 class="bot-name"><a href="https://poe.com/{{ bot.handle }}" target="_blank">{{ bot.display_name }}</a></h3>
-                        <div class="bot-handle"><a href="https://poe.com/{{ bot.handle }}" target="_blank">@{{ bot.handle }}</a></div>
+                        <div class="bot-handle-container">
+                            <div class="bot-handle"><a href="https://poe.com/{{ bot.handle }}" target="_blank">@{{ bot.handle }}</a></div>
+                            {% if bot.creator %}
+                            <div class="creator-info inline-creator-info">
+                                {% if bot.creator.profile_photo_url %}
+                                <img class="creator-avatar" src="{{ bot.creator.profile_photo_url }}" alt="{{ bot.creator.full_name }}">
+                                {% endif %}
+                                <div class="creator-name">{{ bot.creator.full_name }}</div>
+                            </div>
+                            {% else %}
+                            <div class="creator-info inline-creator-info">
+                                <div class="creator-name">Unknown Creator</div>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 <div class="bot-content">
                     <div class="bot-description">{{ bot.description }}</div>
-
-                    <div class="creator-info">
-                        {% if bot.creator %}
-                            {% if bot.creator.profile_photo_url %}
-                            <img class="creator-avatar" src="{{ bot.creator.profile_photo_url }}" alt="{{ bot.creator.full_name }}">
-                            {% endif %}
-                            <div class="creator-name">{{ bot.creator.full_name }}</div>
-                        {% else %}
-                            <div class="creator-name">Unknown Creator</div>
-                        {% endif %}
-                    </div>
 
                     <div class="price-info">
                         <h3 class="price-title">积分价格</h3>

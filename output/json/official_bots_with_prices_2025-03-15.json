@@ -3147,6 +3147,7 @@
     "bot_ID": 3129602,
     "handle": "Mixtral-8x7B-Chat",
     "picture_url": "https://qph.cf2.poecdn.net/main-thumb-pb-3129602-200-bxcnsqpzlksuilfptbonwryllkrtdimb.jpeg",
+<<<<<<< HEAD
     "creator": {
       "full_name": "Fireworks AI",
       "profile_photo_url": "https://qph.cf2.poecdn.net/main-thumb-2339248475-50-cokslpvhdmlrqrkakgkkmiaffqqkcfgh.jpeg"
@@ -3159,6 +3160,10 @@
         "per": "message"
       }
     }
+=======
+    "creator": {},
+    "points_price": {}
+>>>>>>> 807cdfc (```)
   },
   "130": {
     "display_name": "Qwen2.5-Coder-32B",
@@ -4094,6 +4099,7 @@
     "bot_ID": 5365963,
     "handle": "Qwen-QwQ-32b-preview",
     "picture_url": "https://qph.cf2.poecdn.net/main-thumb-pb-5365963-200-spzofuxzvxjsffsndjqpvxdksqvtoqet.jpeg",
+<<<<<<< HEAD
     "creator": {
       "full_name": "Fireworks AI",
       "profile_photo_url": "https://qph.cf2.poecdn.net/main-thumb-2339248475-50-cokslpvhdmlrqrkakgkkmiaffqqkcfgh.jpeg"
@@ -4106,6 +4112,10 @@
         "per": "message"
       }
     }
+=======
+    "creator": {},
+    "points_price": {}
+>>>>>>> 807cdfc (```)
   },
   "174": {
     "display_name": "Claude-2",

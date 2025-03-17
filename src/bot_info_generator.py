@@ -1353,11 +1353,92 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <script>
-        // Get theme toggle element
+        // 获取页面元素
         const themeToggle = document.getElementById('theme-toggle');
         const botCards = document.querySelectorAll('.bot-card');
+        const searchInput = document.getElementById('search-input');
+        const searchClear = document.getElementById('search-clear');
+        const priceFilter = document.getElementById('price-filter');
+        const sortOptions = document.getElementById('sort-options');
+        const botGrid = document.getElementById('bot-grid');
+        const noResults = document.getElementById('no-results');
 
-        // Add animation class to cards when they appear in viewport
+        // 搜索、筛选和排序功能
+        function filterAndSortBots() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const priceType = priceFilter.value;
+            const sortOption = sortOptions.value;
+
+            let visibleCount = 0;
+
+            // 转换为数组以便于排序
+            const cardsArray = Array.from(botCards);
+
+            // 根据选项排序
+            cardsArray.sort((a, b) => {
+                if (sortOption === 'name-asc') {
+                    return a.dataset.name.localeCompare(b.dataset.name);
+                } else if (sortOption === 'name-desc') {
+                    return b.dataset.name.localeCompare(a.dataset.name);
+                } else if (sortOption === 'price-asc') {
+                    const priceA = parseFloat(a.dataset.standardPrice) || 0;
+                    const priceB = parseFloat(b.dataset.standardPrice) || 0;
+                    return priceA - priceB;
+                } else if (sortOption === 'price-desc') {
+                    const priceA = parseFloat(a.dataset.standardPrice) || 0;
+                    const priceB = parseFloat(b.dataset.standardPrice) || 0;
+                    return priceB - priceA;
+                }
+                return 0;
+            });
+
+            // 重新添加到grid中保持排序顺序
+            cardsArray.forEach(card => {
+                botGrid.appendChild(card);
+
+                // 应用筛选
+                const name = card.dataset.name.toLowerCase();
+                const handle = card.dataset.handle.toLowerCase();
+                const description = card.dataset.description.toLowerCase();
+                const pricingType = card.dataset.pricingType;
+
+                const matchesSearch = name.includes(searchTerm) ||
+                                     handle.includes(searchTerm) ||
+                                     description.includes(searchTerm);
+
+                const matchesPrice = priceType === 'all' || pricingType === priceType;
+
+                if (matchesSearch && matchesPrice) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // 显示"无结果"提示
+            if (visibleCount === 0) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        }
+
+        // 添加事件监听器
+        searchInput.addEventListener('input', filterAndSortBots);
+        priceFilter.addEventListener('change', filterAndSortBots);
+        sortOptions.addEventListener('change', filterAndSortBots);
+
+        // 清除搜索
+        searchClear.addEventListener('click', () => {
+            searchInput.value = '';
+            filterAndSortBots();
+        });
+
+        // 初始筛选和排序
+        filterAndSortBots();
+
+        // 卡片动画效果
         const animateOnScroll = (entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1367,14 +1448,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             });
         };
 
-        // Set up Intersection Observer
+        // 设置Intersection Observer
         const cardObserver = new IntersectionObserver(animateOnScroll, {
             root: null,
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         });
 
-        // Add animation CSS
+        // 添加动画CSS
         const style = document.createElement('style');
         style.textContent = `
             .bot-card {
@@ -1390,10 +1471,33 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         `;
         document.head.appendChild(style);
 
-        // Observe each card
+        // 观察每个卡片
         botCards.forEach(card => {
             cardObserver.observe(card);
         });
+
+        // 主题切换
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = themeToggle.getAttribute('data-active');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            themeToggle.setAttribute('data-active', newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
+
+            // 存储主题偏好
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // 加载保存的主题设置
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            themeToggle.setAttribute('data-active', savedTheme);
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            // 如果用户系统偏好深色模式
+            themeToggle.setAttribute('data-active', 'dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
     </script>
 </body>
 </html>

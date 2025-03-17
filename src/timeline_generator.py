@@ -49,39 +49,40 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             --button-hover: #edf2ff;
             --separator-color: #e9ecef;
             --new-bot-bg: #e7f5ff;
-            --price-change-bg: #fff3cd;
+            --price-change-bg: rgba(230, 230, 250, 0.3);
             --price-increase: #dc3545;
             --price-decrease: #28a745;
         }
 
         /* Dark mode color scheme */
-        [data-theme="dark"] {
-            --primary-color: #4cc9f0;
-            --secondary-color: #4895ef;
-            --accent-color: #4361ee;
+        :root[data-theme="dark"] {
+            /* Dark mode */
+            --primary-color: #6c8aff;
+            --secondary-color: #5e60ce;
+            --accent-color: #64dfdf;
             --text-color: #e9ecef;
             --light-text: #adb5bd;
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
             --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            --header-bg: linear-gradient(135deg, #4cc9f0 0%, #3a0ca3 100%);
-            --border-color: #2d3748;
+            --header-bg: linear-gradient(135deg, #5e60ce 0%, #6930c3 100%);
+            --border-color: #333;
             --info-bg: #1a365d;
-            --timeline-line: #4cc9f0;
-            --timeline-dot: #4cc9f0;
+            --timeline-line: #5e60ce;
+            --timeline-dot: #5e60ce;
             --timeline-dot-border: #121212;
             --timeline-card-bg: #1e1e1e;
-            --timeline-date: #4cc9f0;
-            --toggle-bg: #2d3748;
-            --toggle-dot: #4cc9f0;
+            --timeline-date: #6c8aff;
+            --toggle-bg: #333;
+            --toggle-dot: #6c8aff;
             --toggle-icon: #e9ecef;
             --button-hover: #2d3748;
-            --separator-color: #2d3748;
+            --separator-color: #333;
             --new-bot-bg: #1a365d;
-            --price-change-bg: #332701;
-            --price-increase: #e74c3c;
-            --price-decrease: #2ecc71;
+            --price-change-bg: rgba(230, 230, 250, 0.08);
+            --price-increase: #ff4d6a;
+            --price-decrease: #48bb78;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -297,7 +298,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             background-color: var(--timeline-line);
             top: 0;
             bottom: 0;
-            left: 50%;
+            left: 100px;
             margin-left: -2px;
             border-radius: 2px;
             z-index: 0;
@@ -305,9 +306,9 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .timeline-item {
-            padding: 10px 40px;
+            padding: 10px 40px 10px 140px;
             position: relative;
-            width: 50%;
+            width: 100%;
             box-sizing: border-box;
             animation: fadeIn 0.6s ease-out both;
         }
@@ -332,6 +333,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             border: 4px solid var(--timeline-dot-border);
             border-radius: 50%;
             top: 15px;
+            left: 87px;
             z-index: 1;
             box-sizing: content-box;
             box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
@@ -427,7 +429,230 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .price-change {
-            background-color: var(--price-change-bg);
+            margin-bottom: 15px;
+        }
+
+        .price-change-summary {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .price-change-text {
+            margin: 0 10px;
+            flex-grow: 1;
+        }
+
+        .price-change-details {
+            padding: 20px;
+            background-color: var(--bg-color);
+            border-radius: 0 0 8px 8px;
+            margin-top: -5px;
+            border: 1px solid var(--border-color);
+            border-top: none;
+        }
+
+        .price-comparison-summary {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 500;
+        }
+
+        .price-change-percentage {
+            font-size: 0.85rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+        }
+
+        .price-increase-percentage {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--price-increase);
+        }
+
+        .price-decrease-percentage {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--price-decrease);
+        }
+
+        .details-card-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .details-card-title h4 {
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .details-card-title .price-badge {
+            margin-left: auto;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .old-price-badge {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--price-increase);
+        }
+
+        .new-price-badge {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--price-decrease);
+        }
+
+        .diff-highlight {
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .diff-highlight.increase {
+            background-color: rgba(220, 53, 69, 0.15);
+            color: var(--price-increase);
+        }
+
+        .diff-highlight.decrease {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--price-decrease);
+        }
+
+        .diff-highlight::after {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .diff-highlight.increase::after {
+            border-left: 4px solid var(--price-increase);
+        }
+
+        .diff-highlight.decrease::after {
+            border-left: 4px solid var(--price-decrease);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .details-cards {
+            display: flex;
+            gap: 20px;
+        }
+
+        .details-card {
+            flex: 1;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .details-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 4px;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .details-card-old {
+            border-left: none;
+        }
+
+        .details-card-new {
+            border-left: none;
+        }
+
+        .pricing-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .details-card h4 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .bot-details-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .bot-details-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .bot-details-list li:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+
+        .toggle-details {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+        }
+
+        .toggle-details:hover {
+            background-color: var(--button-hover);
+        }
+
+        .expand-icon {
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-details.expanded .expand-icon {
+            transform: rotate(180deg);
         }
 
         .bot-link {
@@ -441,22 +666,6 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         .bot-link:hover {
             text-decoration: none;
             border-bottom: 1px dotted var(--primary-color);
-        }
-
-        .price-increase {
-            color: var(--price-increase);
-            font-weight: 600;
-            background-color: rgba(220, 53, 69, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .price-decrease {
-            color: var(--price-decrease);
-            font-weight: 600;
-            background-color: rgba(40, 167, 69, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
         }
 
         .no-changes {
@@ -511,15 +720,63 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             .timeline-item {
                 width: 100%;
                 padding-left: 70px;
-                padding-right: 25px;
+                padding-right: 15px;
             }
 
-            .timeline-left::after, .timeline-right::after {
+            .timeline-item::after {
                 left: 21px;
             }
 
-            .timeline-right {
-                left: 0;
+            .details-cards {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .price-change-summary {
+                flex-wrap: wrap;
+            }
+
+            .price-comparison-summary {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .price-comparison-summary div:last-child {
+                margin-top: 8px;
+            }
+
+            .price-change-summary .bot-link {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .price-change-text {
+                margin: 0 0 8px 0;
+                width: 100%;
+            }
+
+            .toggle-details {
+                margin-left: auto;
+                margin-right: 0;
+            }
+
+            .details-card-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .details-card-title .price-badge {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .bot-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .bot-info-card {
+                padding: 12px;
             }
         }
 
@@ -541,6 +798,72 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                 padding-left: 60px;
                 padding-right: 15px;
             }
+
+            .price-change-details {
+                padding: 10px;
+            }
+
+            .details-card {
+                padding: 10px;
+            }
+
+            .bot-info-card {
+                padding: 10px;
+            }
+        }
+
+        .price-increase {
+            color: var(--price-increase);
+            font-weight: 600;
+            background-color: rgba(220, 53, 69, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .price-decrease {
+            color: var(--price-decrease);
+            font-weight: 600;
+            background-color: rgba(40, 167, 69, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .bot-info-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .bot-description {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .bot-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .bot-creator, .bot-model {
+            padding: 3px 8px;
+            background-color: var(--bg-color);
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .details-card-old::before {
+            background-color: var(--price-increase);
+        }
+
+        .details-card-new::before {
+            background-color: var(--price-decrease);
         }
     </style>
 </head>
@@ -566,7 +889,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         {% if timeline_data %}
         <div class="timeline">
             {% for date, changes in timeline_data.items() %}
-            <div class="timeline-item {% if loop.index is even %}timeline-right{% else %}timeline-left{% endif %}">
+            <div class="timeline-item">
                 <div class="timeline-content">
                     <div class="timeline-date">{{ date }}</div>
                     <ul class="timeline-changes">
@@ -586,10 +909,161 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                         {% if changes.price_changes %}
                         {% for change in changes.price_changes %}
                         <li class="price-change">
-                            价格变化: <a href="https://poe.com/{{ change.handle }}" target="_blank" class="bot-link">{{ change.name }}</a>
-                            <span class="{% if change.old_price < change.new_price %}price-increase{% else %}price-decrease{% endif %}">
-                                {{ change.old_price }} → {{ change.new_price }} 积分
-                            </span>
+                            <div class="price-change-summary">
+                                <a href="https://poe.com/{{ change.handle }}" target="_blank" class="bot-link">{{ change.name }}</a>
+                                <span class="price-change-text">
+                                    {% if change.old_output is defined and change.new_output is defined %}
+                                    输出: <span class="{% if change.old_output < change.new_output %}price-increase{% else %}price-decrease{% endif %}">
+                                        {{ change.old_output }} 积分/message → {{ change.new_output }} 积分/message
+                                    </span>
+                                    {% elif change.old_standard_message is defined and change.new_standard_message is defined %}
+                                    标准消息: <span class="{% if change.old_standard_message < change.new_standard_message %}price-increase{% else %}price-decrease{% endif %}">
+                                        {{ change.old_standard_message }} 积分/message → {{ change.new_standard_message }} 积分/message
+                                    </span>
+                                    {% else %}
+                                    标准消息: <span class="{% if change.old_price < change.new_price %}price-increase{% else %}price-decrease{% endif %}">
+                                        {{ change.old_price }} 积分/message → {{ change.new_price }} 积分/message
+                                    </span>
+                                    {% endif %}
+                                </span>
+                                <button class="toggle-details" onclick="toggleDetails(this)">
+                                    <span class="expand-icon">▼</span>
+                                </button>
+                            </div>
+                            <div class="price-change-details hidden">
+                                {% if change.old_price != 0 and change.new_price != 0 %}
+                                <div class="price-comparison-summary">
+                                    <div>价格变化: {{ change.old_price }} → {{ change.new_price }} 积分</div>
+                                    {% if change.old_price != 0 %}
+                                    {% set percentage = ((change.new_price - change.old_price) / change.old_price * 100) | round(1) %}
+                                    <div>
+                                        {% if percentage > 0 %}
+                                        <span class="price-change-percentage price-increase-percentage">+{{ percentage }}%</span>
+                                        {% else %}
+                                        <span class="price-change-percentage price-decrease-percentage">{{ percentage }}%</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                {% if change.description or change.creator or change.model %}
+                                <div class="bot-info-card">
+                                    {% if change.description %}
+                                    <div class="bot-description">{{ change.description }}</div>
+                                    {% endif %}
+                                    <div class="bot-meta">
+                                        {% if change.creator %}
+                                        <div class="bot-creator">创作者: {{ change.creator }}</div>
+                                        {% endif %}
+                                        {% if change.model %}
+                                        <div class="bot-model">模型: {{ change.model }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <div class="details-cards">
+                                    <div class="details-card details-card-old">
+                                        <div class="details-card-title">
+                                            <h4>之前价格</h4>
+                                            <span class="price-badge old-price-badge">{{ change.old_price }} 积分</span>
+                                        </div>
+                                        <ul class="bot-details-list">
+                                            {% if change.old_standard_message is defined and change.old_standard_message != None %}
+                                            <li>
+                                                <span class="detail-label">标准消息:</span>
+                                                <span class="detail-value">{{ change.old_standard_message }} 积分</span>
+                                            </li>
+                                            {% else %}
+                                            <li>
+                                                <span class="detail-label">标准消息:</span>
+                                                <span class="detail-value">{{ change.old_price }} 积分</span>
+                                            </li>
+                                            {% endif %}
+                                            {% if change.old_text_input is defined and change.old_text_input != None %}
+                                            <li>
+                                                <span class="detail-label">文本输入:</span>
+                                                <span class="detail-value">{{ change.old_text_input }} 积分</span>
+                                            </li>
+                                            {% endif %}
+                                            {% if change.old_image_input is defined and change.old_image_input != None %}
+                                            <li>
+                                                <span class="detail-label">图片输入:</span>
+                                                <span class="detail-value">{{ change.old_image_input }} 积分</span>
+                                            </li>
+                                            {% endif %}
+                                            {% if change.old_cache_input is defined and change.old_cache_input != None %}
+                                            <li>
+                                                <span class="detail-label">缓存输入:</span>
+                                                <span class="detail-value">{{ change.old_cache_input }} 积分</span>
+                                            </li>
+                                            {% endif %}
+                                            {% if change.old_output is defined and change.old_output != None %}
+                                            <li>
+                                                <span class="detail-label">输出:</span>
+                                                <span class="detail-value">{{ change.old_output }} 积分</span>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    <div class="details-card details-card-new">
+                                        <div class="details-card-title">
+                                            <h4>当前价格</h4>
+                                            <span class="price-badge new-price-badge">{{ change.new_price }} 积分</span>
+                                        </div>
+                                        <ul class="bot-details-list">
+                                            {% if change.new_standard_message is defined and change.new_standard_message != None %}
+                                            <li>
+                                                <span class="detail-label">标准消息:</span>
+                                                <span class="detail-value {% if change.old_standard_message is defined and change.old_standard_message != None and change.old_standard_message != change.new_standard_message %}diff-highlight {% if change.old_standard_message < change.new_standard_message %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_standard_message }} 积分
+                                                </span>
+                                            </li>
+                                            {% else %}
+                                            <li>
+                                                <span class="detail-label">标准消息:</span>
+                                                <span class="detail-value {% if change.old_price != change.new_price %}diff-highlight {% if change.old_price < change.new_price %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_price }} 积分
+                                                </span>
+                                            </li>
+                                            {% endif %}
+                                            {% if change.new_text_input is defined and change.new_text_input != None %}
+                                            <li>
+                                                <span class="detail-label">文本输入:</span>
+                                                <span class="detail-value {% if change.old_text_input is defined and change.old_text_input != None and change.old_text_input != change.new_text_input %}diff-highlight {% if change.old_text_input < change.new_text_input %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_text_input }} 积分
+                                                </span>
+                                            </li>
+                                            {% endif %}
+                                            {% if change.new_image_input is defined and change.new_image_input != None %}
+                                            <li>
+                                                <span class="detail-label">图片输入:</span>
+                                                <span class="detail-value {% if change.old_image_input is defined and change.old_image_input != None and change.old_image_input != change.new_image_input %}diff-highlight {% if change.old_image_input < change.new_image_input %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_image_input }} 积分
+                                                </span>
+                                            </li>
+                                            {% endif %}
+                                            {% if change.new_cache_input is defined and change.new_cache_input != None %}
+                                            <li>
+                                                <span class="detail-label">缓存输入:</span>
+                                                <span class="detail-value {% if change.old_cache_input is defined and change.old_cache_input != None and change.old_cache_input != change.new_cache_input %}diff-highlight {% if change.old_cache_input < change.new_cache_input %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_cache_input }} 积分
+                                                </span>
+                                            </li>
+                                            {% endif %}
+                                            {% if change.new_output is defined and change.new_output != None %}
+                                            <li>
+                                                <span class="detail-label">输出:</span>
+                                                <span class="detail-value {% if change.old_output is defined and change.old_output != None and change.old_output != change.new_output %}diff-highlight {% if change.old_output < change.new_output %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_output }} 积分
+                                                </span>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </li>
                         {% endfor %}
                         {% endif %}
@@ -636,6 +1110,13 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                 localStorage.setItem('theme', 'dark');
             }
         });
+
+        // Toggle details for price changes
+        function toggleDetails(button) {
+            button.classList.toggle('expanded');
+            const detailsSection = button.closest('.price-change').querySelector('.price-change-details');
+            detailsSection.classList.toggle('hidden');
+        }
     </script>
 </body>
 </html>"""
@@ -685,7 +1166,10 @@ def generate_timeline_data():
             "id": bot.get("bot_ID", ""),
             "handle": bot.get("handle", ""),
             "name": bot.get("display_name", "Unknown Bot"),
-            "price": get_bot_price(bot)
+            "price": get_bot_price(bot),
+            "description": bot.get("description", ""),
+            "creator": bot.get("creator", {}).get("name", "Unknown Creator"),
+            "model": get_bot_model(bot)
         })
 
     # Check price changes for existing bots
@@ -702,7 +1186,22 @@ def generate_timeline_data():
                 "handle": today_bot.get("handle", ""),
                 "name": today_bot.get("display_name", "Unknown Bot"),
                 "old_price": previous_price,
-                "new_price": today_price
+                "new_price": today_price,
+                # Add detailed pricing information if available
+                "old_text_input": get_bot_price_component(previous_bot, "text_input"),
+                "new_text_input": get_bot_price_component(today_bot, "text_input"),
+                "old_image_input": get_bot_price_component(previous_bot, "image_input"),
+                "new_image_input": get_bot_price_component(today_bot, "image_input"),
+                "old_cache_input": get_bot_price_component(previous_bot, "cache_input"),
+                "new_cache_input": get_bot_price_component(today_bot, "cache_input"),
+                "old_output": get_bot_price_component(previous_bot, "output"),
+                "new_output": get_bot_price_component(today_bot, "output"),
+                "old_standard_message": get_bot_price_component(previous_bot, "standard_message"),
+                "new_standard_message": get_bot_price_component(today_bot, "standard_message"),
+                # Add more bot details
+                "description": today_bot.get("description", ""),
+                "creator": today_bot.get("creator", {}).get("name", "Unknown Creator"),
+                "model": get_bot_model(today_bot)
             })
 
     # Add to timeline data if there are changes
@@ -727,6 +1226,46 @@ def generate_timeline_data():
         logger.info("No changes detected for timeline")
 
     return timeline_data
+
+def get_bot_price_component(bot, component_name):
+    """Extract specific pricing component from bot data"""
+    try:
+        # Try points_price structure
+        if "points_price" in bot:
+            if isinstance(bot["points_price"], dict):
+                # Direct component in points_price
+                if component_name in bot["points_price"]:
+                    value = bot["points_price"][component_name].get("value", 0)
+                    if isinstance(value, (int, float, str)):
+                        try:
+                            return float(value)
+                        except (ValueError, TypeError):
+                            return 0
+
+                # Special case for "standard_message" which is what most bots use
+                if component_name == "standard_message" and "standard_message" in bot["points_price"]:
+                    value = bot["points_price"]["standard_message"].get("value", 0)
+                    if isinstance(value, (int, float, str)):
+                        try:
+                            return float(value)
+                        except (ValueError, TypeError):
+                            return 0
+
+                # Special case for input/output components
+                if "input_" in component_name and "inputs" in bot["points_price"]:
+                    input_type = component_name.replace("input_", "")
+                    for input_item in bot["points_price"]["inputs"]:
+                        if input_item.get("type") == input_type:
+                            value = input_item.get("value", 0)
+                            if isinstance(value, (int, float, str)):
+                                try:
+                                    return float(value)
+                                except (ValueError, TypeError):
+                                    return 0
+
+        return None
+    except Exception:
+        return None
 
 def get_bot_price(bot):
     """Extract price from bot data in any format"""
@@ -761,6 +1300,17 @@ def get_bot_price(bot):
         return 0
     except Exception:
         return 0
+
+def get_bot_model(bot):
+    """Extract the model information from bot data"""
+    try:
+        if "model" in bot:
+            return bot["model"]
+        elif "settings" in bot and "model" in bot["settings"]:
+            return bot["settings"]["model"]
+        return "Unknown"
+    except Exception:
+        return "Unknown"
 
 def generate_timeline_html(timeline_data=None):
     """

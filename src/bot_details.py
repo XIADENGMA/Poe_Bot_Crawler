@@ -1,6 +1,7 @@
 import logging
 import re
 import json
+import time
 
 import markdown
 import requests
@@ -16,12 +17,14 @@ logger = logging.getLogger("src.bot_details")
 POE_API_URL = "https://poe.com/api/gql_POST"
 
 
-def fetch_bot_details(bot_id):
+def fetch_bot_details(bot_id, max_retries=5, retry_delay=1):
     """
     Fetch details for a specific bot by ID
 
     Args:
         bot_id: ID of the bot
+        max_retries: Maximum number of retries on failure
+        retry_delay: Delay between retries in seconds
 
     Returns:
         Dict containing the bot details
@@ -35,17 +38,23 @@ def fetch_bot_details(bot_id):
         "extensions": {"hash": "6fd0395447f45865f1ef2bb029eb99aafb1a865d91d8634d1c7103cd7bc08009"},
     }
 
-    try:
-        response = requests.post(
-            POE_API_URL, headers=HEADERS, cookies=get_cookie_dict(), json=payload
-        )
-        response.raise_for_status()
-        data = response.json()
-        logger.info(f"Successfully fetched details for bot ID: {bot_id}")
-        return data
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Error fetching bot details for ID {bot_id}: {e}")
-        raise
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(
+                POE_API_URL, headers=HEADERS, cookies=get_cookie_dict(), json=payload
+            )
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Successfully fetched details for bot ID: {bot_id}")
+            return data
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Attempt {attempt+1}/{max_retries} failed for bot ID {bot_id}: {e}")
+            if attempt < max_retries - 1:
+                logger.info(f"Retrying in {retry_delay} second(s)...")
+                time.sleep(retry_delay)
+            else:
+                logger.error(f"Error fetching bot details for ID {bot_id} after {max_retries} attempts: {e}")
+                raise
 
 
 def save_bot_details(bot_id, data):

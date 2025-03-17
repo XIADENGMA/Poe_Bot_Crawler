@@ -1,5 +1,6 @@
 import logging
 import requests
+import time
 from tqdm import tqdm
 
 from utils import CURRENT_DATE, HEADERS, JSON_DIR, get_cookie_dict, save_json
@@ -11,9 +12,13 @@ logger = logging.getLogger("src.bot_list")
 POE_API_URL = "https://poe.com/api/gql_POST"
 
 
-def fetch_official_bots():
+def fetch_official_bots(max_retries=5, retry_delay=1):
     """
     Fetch the official bot list from Poe API
+
+    Args:
+        max_retries: Maximum number of retries on failure
+        retry_delay: Delay between retries in seconds
 
     Returns:
         Dict containing the official bot list
@@ -31,17 +36,23 @@ def fetch_official_bots():
         "extensions": {"hash": "b24b2f2f6da147b3345eec1a433ed17b6e1332df97dea47622868f41078a40cc"},
     }
 
-    try:
-        response = requests.post(
-            POE_API_URL, headers=HEADERS, cookies=get_cookie_dict(), json=payload
-        )
-        response.raise_for_status()
-        data = response.json()
-        logger.info("Successfully fetched official bot list")
-        return data
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Error fetching official bot list: {e}")
-        raise
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(
+                POE_API_URL, headers=HEADERS, cookies=get_cookie_dict(), json=payload
+            )
+            response.raise_for_status()
+            data = response.json()
+            logger.info("Successfully fetched official bot list")
+            return data
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Attempt {attempt+1}/{max_retries} failed: {e}")
+            if attempt < max_retries - 1:
+                logger.info(f"Retrying in {retry_delay} second(s)...")
+                time.sleep(retry_delay)
+            else:
+                logger.error(f"Error fetching official bot list after {max_retries} attempts: {e}")
+                raise
 
 
 def process_bots_data(data):

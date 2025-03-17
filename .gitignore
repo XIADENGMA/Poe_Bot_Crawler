@@ -5,6 +5,7 @@ outpus/*
 .ai/
 logs/
 .specstory/
+output/
 
 # Python
 __pycache__/

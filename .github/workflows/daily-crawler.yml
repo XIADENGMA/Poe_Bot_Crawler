@@ -1,8 +1,10 @@
 name: Daily Poe Bot Crawler
 
+# TODO：action提交output文件夹内容，pull不拉取，push不提交
+
 on:
   schedule:
-    - cron: '0 0 * * *' # 北京时间上午08:00（UTC+8）
+    # - cron: '0 0 * * *' # 北京时间上午08:00（UTC+8）
   workflow_dispatch: # 允许手动触发工作流
 
 # 为整个工作流设置权限

@@ -777,28 +777,42 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             }
         }
 
-        .timeline-link {
+        .timeline-button {
             display: inline-block;
-            margin-left: 8px;
-            color: var(--primary-color);
-            font-size: 0.9em;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
             text-decoration: none;
+            margin-left: 10px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .timeline-link:hover {
-            text-decoration: underline;
+        .timeline-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .update-indicator {
+        .update-sparkle {
             display: inline-block;
             margin-left: 5px;
             animation: sparkle 1.5s infinite;
         }
 
+        .update-notice {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-top: 10px;
+            animation: sparkle 1.5s infinite;
+        }
+
         @keyframes sparkle {
-            0% { opacity: 0.2; }
+            0% { opacity: 0.4; }
             50% { opacity: 1; }
-            100% { opacity: 0.2; }
+            100% { opacity: 0.4; }
         }
 
         @media (max-width: 992px) {
@@ -828,10 +842,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <div class="header-content">
                 <h1><img src="assets/favicon.svg" alt="Poe Logo" class="poe-logo">Poe 机器人积分价格</h1>
                 <div class="info">
-                    <p>数据更新时间: {{ date }}</p>
-                    <p>共 {{ total_bots }} 个机器人，其中 {{ paid_bots }} 个付费机器人</p>
+                    <p>数据更新时间: {{ date }}
+                        <a href="timeline.html" class="timeline-button">
+                            查看更新时间线 {% if has_updates %}<span class="update-sparkle">✨</span>{% endif %}
+                        </a>
+                    </p>
                     {% if has_updates %}
-                    <p class="update-notice">🔔 今日有更新，请查看 <a href="timeline.html">更新时间线</a></p>
+                    <p class="update-notice">今日有更新!</p>
                     {% endif %}
                 </div>
             </div>

@@ -20,7 +20,7 @@ from utils import (
 from bot_info_generator import generate_html
 # Try to import timeline_generator functions, if the module exists
 try:
-    from timeline_generator import generate_timeline_html, update_timeline_index
+    from timeline_generator import generate_timeline_html, update_timeline_index, generate_timeline_data
     has_timeline_generator = True
 except ImportError:
     has_timeline_generator = False
@@ -69,52 +69,22 @@ def main():
         updated_filepath = save_json(updated_bots_data, JSON_DIR, output_file)
         logger.info(f"Saved updated bot list to {updated_filepath}")
 
-        # Get previous data
-        previous_data = get_previous_data()
-
-        # Debug print to check data types
-        logger.info(f"Type of updated_bots_data: {type(updated_bots_data)}")
-        if isinstance(updated_bots_data, list) and updated_bots_data:
-            logger.info(f"Type of first item in updated_bots_data: {type(updated_bots_data[0])}")
-        else:
-            logger.info(f"updated_bots_data is not a list or is empty")
-
-        logger.info(f"Type of previous_data: {type(previous_data)}")
-        if isinstance(previous_data, dict) and previous_data:
-            logger.info(f"Type of first item in previous_data: {type(list(previous_data.values())[0])}")
-
-        # Compare today's data with previous data
-        changes = compare_bot_data(updated_bots_data, previous_data)
-
-        # Log the changes found
-        logger.info(f"Found {len(changes['new_bots'])} new bots and {len(changes['price_changes'])} price changes")
-
-        # Save timeline data
-        timeline_filepath = save_timeline_data(changes)
-        logger.info(f"Timeline data filepath: {timeline_filepath}")
-
-        # Load timeline data for HTML generation
-        timeline_data = None
-        if timeline_filepath:
-            try:
-                timeline_data = load_json(timeline_filepath)
-                logger.info(f"Loaded timeline data with {len(timeline_data)} entries")
-            except Exception as e:
-                logger.error(f"Error loading timeline data: {e}")
-
         # Generate HTML using html_generator
-        has_updates = (len(changes['new_bots']) > 0 or len(changes['price_changes']) > 0)
-        html_path = generate_html(updated_bots_data, has_updates)
+        html_path = generate_html(updated_bots_data)
         logger.info(f"Generated HTML at {html_path}")
 
         # Generate timeline HTML if the module is available
-        if has_timeline_generator and timeline_data:
-            timeline_html_path = generate_timeline_html(timeline_data)
-            logger.info(f"Generated timeline HTML at {timeline_html_path}")
+        if has_timeline_generator:
+            # Generate timeline data and HTML directly with our new function
+            timeline_html_path = generate_timeline_html()
+            if timeline_html_path:
+                logger.info(f"Generated timeline HTML at {timeline_html_path}")
 
-            # Update timeline.html with latest timeline content
-            timeline_index_path = update_timeline_index()
-            logger.info(f"Updated timeline.html at {timeline_index_path}")
+                # Update timeline.html with latest timeline content
+                timeline_index_path = update_timeline_index()
+                logger.info(f"Updated timeline.html at {timeline_index_path}")
+            else:
+                logger.info("No timeline data generated")
 
         # Clean old files (keeping the last 7 days by default)
         for directory in [JSON_DIR, BOT_INFO_DIR, TIMELINE_DIR]:
@@ -122,10 +92,9 @@ def main():
             logger.info(f"Cleaned old files in {directory}")
 
         logger.info("Process completed successfully!")
-        print(f"\nTimeline data saved to: {timeline_filepath}")
-        print(f"Bot list saved to: {updated_filepath}")
+        print(f"\nBot list saved to: {updated_filepath}")
         print(f"HTML generated at: {html_path}")
-        if has_timeline_generator and timeline_data:
+        if has_timeline_generator and 'timeline_html_path' in locals() and timeline_html_path:
             print(f"Timeline HTML generated at: {timeline_html_path}")
 
     except Exception as e:

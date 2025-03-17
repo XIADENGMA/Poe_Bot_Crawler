@@ -1,10 +1,12 @@
 import logging
 from pathlib import Path
 import shutil
+import json
+from datetime import datetime
 
 from jinja2 import Template
 
-from utils import CURRENT_DATE, RESULT_DIR
+from utils import CURRENT_DATE, RESULT_DIR, load_json
 
 # Configure logging - use the logger from the main module
 logger = logging.getLogger("src.timeline_generator")
@@ -82,6 +84,43 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             --price-decrease: #2ecc71;
         }
 
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --primary-color: #4cc9f0;
+                --secondary-color: #4895ef;
+                --accent-color: #4361ee;
+                --text-color: #e9ecef;
+                --light-text: #adb5bd;
+                --bg-color: #121212;
+                --card-bg: #1e1e1e;
+                --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+                --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                --header-bg: linear-gradient(135deg, #4cc9f0 0%, #3a0ca3 100%);
+                --border-color: #2d3748;
+                --info-bg: #1a365d;
+                --timeline-line: #4cc9f0;
+                --timeline-dot: #4cc9f0;
+                --timeline-dot-border: #121212;
+                --timeline-card-bg: #1e1e1e;
+                --timeline-date: #4cc9f0;
+                --toggle-bg: #2d3748;
+                --toggle-dot: #4cc9f0;
+                --toggle-icon: #e9ecef;
+                --button-hover: #2d3748;
+                --separator-color: #2d3748;
+                --new-bot-bg: #1a365d;
+                --price-change-bg: #332701;
+                --price-increase: #e74c3c;
+                --price-decrease: #2ecc71;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -89,6 +128,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: all 0.3s ease;
+            line-height: 1.6;
         }
 
         .container {
@@ -102,104 +142,144 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             color: white;
             padding: 40px 0;
             text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid var(--border-color);
         }
 
         header h1 {
             margin: 0;
             font-size: 2.5rem;
             font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
-        header p {
-            margin: 10px 0 0;
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background-color: var(--toggle-bg);
-            border-radius: 30px;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .theme-toggle-dot {
-            width: 24px;
-            height: 24px;
-            background-color: var(--toggle-dot);
-            border-radius: 50%;
-            position: relative;
-            transition: transform 0.3s ease;
-        }
-
-        [data-theme="dark"] .theme-toggle-dot {
-            transform: translateX(24px);
-        }
-
-        .theme-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--toggle-icon);
-            font-size: 14px;
-        }
-
-        .info-bar {
+        .info {
             background-color: var(--info-bg);
-            padding: 15px;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 12px;
             margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .header-links {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            box-shadow: var(--card-shadow);
-        }
-
-        .info-bar p {
-            margin: 5px 0;
-            font-size: 0.95rem;
-        }
-
-        .info-bar a {
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .info-bar a:hover {
-            text-decoration: underline;
+            justify-content: center;
+            margin-top: 20px;
         }
 
         .back-link {
-            margin-right: 15px;
-            padding: 5px 10px;
+            display: inline-block;
             background-color: var(--primary-color);
             color: white !important;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
             text-decoration: none;
-            transition: background-color 0.3s ease;
+            margin-left: 10px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .back-link:hover {
             background-color: var(--secondary-color);
             text-decoration: none !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Theme toggle style */
+        #theme-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 65px;
+            height: 30px;
+            background: var(--toggle-bg);
+            border-radius: 30px;
+            padding: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-toggle-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+
+        .theme-toggle-thumb {
+            position: absolute;
+            top: 2.5px;
+            left: 2.5px;
+            width: 25px;
+            height: 25px;
+            background: var(--toggle-dot);
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--toggle-icon);
+        }
+
+        [data-theme="dark"] .theme-toggle-thumb {
+            transform: translateX(35px);
+        }
+
+        .light-icon, .dark-icon {
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--toggle-icon);
+            font-size: 14px;
+        }
+
+        .light-icon {
+            left: 8px;
+            opacity: 1;
+        }
+
+        .dark-icon {
+            right: 8px;
+            opacity: 0.5;
+        }
+
+        [data-theme="dark"] .light-icon {
+            opacity: 0.5;
+        }
+
+        [data-theme="dark"] .dark-icon {
+            opacity: 1;
         }
 
         /* Timeline specific styles */
@@ -207,7 +287,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             position: relative;
             max-width: 800px;
             margin: 0 auto;
-            padding: 40px 0;
+            padding: 60px 0;
         }
 
         .timeline::after {
@@ -220,6 +300,8 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             left: 50%;
             margin-left: -2px;
             border-radius: 2px;
+            z-index: 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .timeline-item {
@@ -227,6 +309,18 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             position: relative;
             width: 50%;
             box-sizing: border-box;
+            animation: fadeIn 0.6s ease-out both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .timeline-item::after {
@@ -239,6 +333,15 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             border-radius: 50%;
             top: 15px;
             z-index: 1;
+            box-sizing: content-box;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover::after {
+            /* Remove transform and shadow hover effects */
+            transform: none;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
         }
 
         .timeline-left {
@@ -250,32 +353,49 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .timeline-left::after {
-            right: -10px;
+            right: -14px;
         }
 
         .timeline-right::after {
-            left: -10px;
+            left: -14px;
         }
 
         .timeline-content {
-            padding: 20px;
+            padding: 25px;
             background-color: var(--timeline-card-bg);
-            border-radius: 8px;
+            border-radius: 12px;
             box-shadow: var(--card-shadow);
             position: relative;
             transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+            opacity: 0.7;
         }
 
         .timeline-content:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--card-hover-shadow);
+            /* Remove transform and shadow hover effects */
+            transform: none;
+            box-shadow: var(--card-shadow);
         }
 
         .timeline-date {
             font-weight: 600;
             color: var(--timeline-date);
-            margin-bottom: 10px;
-            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            display: inline-block;
         }
 
         .timeline-changes {
@@ -285,9 +405,21 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .timeline-changes li {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 6px;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .timeline-changes li:hover {
+            /* Remove shadow and transform hover effects */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transform: none;
+        }
+
+        .timeline-changes li:last-child {
+            margin-bottom: 0;
         }
 
         .new-bot {
@@ -302,18 +434,29 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             color: var(--primary-color);
             text-decoration: none;
             font-weight: 600;
+            transition: all 0.2s ease;
+            border-bottom: 1px dotted transparent;
         }
 
         .bot-link:hover {
-            text-decoration: underline;
+            text-decoration: none;
+            border-bottom: 1px dotted var(--primary-color);
         }
 
         .price-increase {
             color: var(--price-increase);
+            font-weight: 600;
+            background-color: rgba(220, 53, 69, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
         .price-decrease {
             color: var(--price-decrease);
+            font-weight: 600;
+            background-color: rgba(40, 167, 69, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
         .no-changes {
@@ -389,7 +532,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                 font-size: 1.8rem;
             }
 
-            .theme-toggle {
+            #theme-toggle {
                 top: 10px;
                 right: 10px;
             }
@@ -402,35 +545,24 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <div class="theme-toggle" id="themeToggle">
-        <div class="theme-toggle-dot">
-            <span class="theme-icon">☀️</span>
-        </div>
+    <div id="theme-toggle">
+        <span class="light-icon">☀️</span>
+        <span class="dark-icon">🌙</span>
+        <span class="theme-toggle-thumb"></span>
     </div>
 
     <header>
         <div class="container">
             <h1>Poe 机器人更新时间线</h1>
-            <p>查看 Poe 机器人的更新历史</p>
+            <div class="info">
+                <p>数据更新时间: {{ date }}
+                    <a href="index.html" class="back-link">返回机器人列表</a>
+                </p>
+            </div>
         </div>
     </header>
 
     <div class="container">
-        <div class="info-bar">
-            <div>
-                <p>数据更新时间: {{ date }}</p>
-                <p>
-                    <a href="index.html" class="back-link">返回机器人列表</a>
-                </p>
-            </div>
-            <div>
-                <p>
-                    <a href="https://github.com/Yidadaa/Poe-Bot-Crawler" target="_blank">GitHub</a> |
-                    <a href="https://poe.com" target="_blank">Poe 官网</a>
-                </p>
-            </div>
-        </div>
-
         {% if timeline_data %}
         <div class="timeline">
             {% for date, changes in timeline_data.items() %}
@@ -441,7 +573,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                         {% if changes.new_bots %}
                         {% for bot in changes.new_bots %}
                         <li class="new-bot">
-                            新增机器人: <a href="https://poe.com/{{ bot.id }}" target="_blank" class="bot-link">{{ bot.name }}</a>
+                            新增机器人: <a href="https://poe.com/{{ bot.handle }}" target="_blank" class="bot-link">{{ bot.name }}</a>
                             {% if bot.price > 0 %}
                             ({{ bot.price }} 积分/条)
                             {% else %}
@@ -454,7 +586,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                         {% if changes.price_changes %}
                         {% for change in changes.price_changes %}
                         <li class="price-change">
-                            价格变化: <a href="https://poe.com/{{ change.id }}" target="_blank" class="bot-link">{{ change.name }}</a>
+                            价格变化: <a href="https://poe.com/{{ change.handle }}" target="_blank" class="bot-link">{{ change.name }}</a>
                             <span class="{% if change.old_price < change.new_price %}price-increase{% else %}price-decrease{% endif %}">
                                 {{ change.old_price }} → {{ change.new_price }} 积分
                             </span>
@@ -482,49 +614,178 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
     <script>
         // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
+        const themeToggle = document.getElementById('theme-toggle');
         const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
         // Check for saved theme preference or use the system preference
-        const currentTheme = localStorage.getItem('theme') || (prefersDarkScheme.matches ? 'dark' : 'light');
-
-        // Apply the current theme
-        if (currentTheme === 'dark') {
-            document.body.setAttribute('data-theme', 'dark');
-            themeToggle.querySelector('.theme-icon').textContent = '🌙';
-        } else {
-            document.body.removeAttribute('data-theme');
-            themeToggle.querySelector('.theme-icon').textContent = '☀️';
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else if (prefersDarkScheme.matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
         }
 
         // Toggle theme when the button is clicked
         themeToggle.addEventListener('click', () => {
-            let theme;
-            if (document.body.getAttribute('data-theme') === 'dark') {
-                document.body.removeAttribute('data-theme');
-                theme = 'light';
-                themeToggle.querySelector('.theme-icon').textContent = '☀️';
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
             } else {
-                document.body.setAttribute('data-theme', 'dark');
-                theme = 'dark';
-                themeToggle.querySelector('.theme-icon').textContent = '🌙';
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
             }
-            localStorage.setItem('theme', theme);
         });
     </script>
 </body>
 </html>"""
 
-def generate_timeline_html(timeline_data):
+def generate_timeline_data():
+    """
+    Generate timeline data by comparing current and previous bot data
+
+    Returns:
+        Dictionary with timeline data or None if no changes
+    """
+    from utils import JSON_DIR, load_json, CURRENT_DATE
+
+    # Path to today's and previous day's data files
+    today_file = JSON_DIR / f"official_bots_with_prices_{CURRENT_DATE}.json"
+
+    # Find the previous day's file
+    json_files = list(JSON_DIR.glob("official_bots_with_prices_*.json"))
+    previous_files = [f for f in json_files if CURRENT_DATE not in f.name]
+
+    if not previous_files:
+        logger.warning("No previous data files found")
+        return None
+
+    # Sort by modification time (newest first)
+    previous_file = max(previous_files, key=lambda f: f.stat().st_mtime)
+
+    # Load data
+    today_data = load_json(today_file)
+    previous_data = load_json(previous_file)
+
+    # Initialize timeline data
+    timeline_data = {}
+
+    # Find new bots and price changes
+    new_bots = []
+    price_changes = []
+
+    # Create sets of bot IDs for quick comparison
+    today_bot_ids = set(today_data.keys())
+    previous_bot_ids = set(previous_data.keys())
+
+    # Find new bots (in today's data but not in previous data)
+    for bot_id in today_bot_ids - previous_bot_ids:
+        bot = today_data[bot_id]
+        new_bots.append({
+            "id": bot.get("bot_ID", ""),
+            "handle": bot.get("handle", ""),
+            "name": bot.get("display_name", "Unknown Bot"),
+            "price": get_bot_price(bot)
+        })
+
+    # Check price changes for existing bots
+    for bot_id in today_bot_ids.intersection(previous_bot_ids):
+        today_bot = today_data[bot_id]
+        previous_bot = previous_data[bot_id]
+
+        today_price = get_bot_price(today_bot)
+        previous_price = get_bot_price(previous_bot)
+
+        if today_price != previous_price:
+            price_changes.append({
+                "id": today_bot.get("bot_ID", ""),
+                "handle": today_bot.get("handle", ""),
+                "name": today_bot.get("display_name", "Unknown Bot"),
+                "old_price": previous_price,
+                "new_price": today_price
+            })
+
+    # Add to timeline data if there are changes
+    if new_bots or price_changes:
+        timeline_data[CURRENT_DATE] = {
+            "new_bots": new_bots,
+            "price_changes": price_changes
+        }
+
+        # Try to load existing timeline data and merge
+        timeline_file = JSON_DIR / "timeline_data.json"
+        if timeline_file.exists():
+            existing_timeline = load_json(timeline_file)
+            timeline_data.update(existing_timeline)
+
+        # Save the timeline data
+        with open(timeline_file, 'w', encoding='utf-8') as f:
+            json.dump(timeline_data, f, indent=2, ensure_ascii=False)
+
+        logger.info(f"Created timeline data with {len(new_bots)} new bots and {len(price_changes)} price changes")
+    else:
+        logger.info("No changes detected for timeline")
+
+    return timeline_data
+
+def get_bot_price(bot):
+    """Extract price from bot data in any format"""
+    try:
+        # Try direct price field
+        if "price" in bot and isinstance(bot["price"], (int, float)):
+            return bot["price"]
+
+        # Try points_price structure
+        if "points_price" in bot:
+            if isinstance(bot["points_price"], dict):
+                # Try standard_message
+                if "standard_message" in bot["points_price"]:
+                    value = bot["points_price"]["standard_message"].get("value", 0)
+                    if isinstance(value, (int, float, str)):
+                        try:
+                            return float(value)
+                        except (ValueError, TypeError):
+                            return 0
+
+                # Try different format
+                if "pricing_type" in bot["points_price"]:
+                    # Mixed pricing with non_subscriber field
+                    if "non_subscriber" in bot["points_price"]:
+                        text_output = bot["points_price"]["non_subscriber"].get("text_output", {})
+                        value = text_output.get("value", 0)
+                        try:
+                            return float(value)
+                        except (ValueError, TypeError):
+                            return 0
+
+        return 0
+    except Exception:
+        return 0
+
+def generate_timeline_html(timeline_data=None):
     """
     Generate HTML display for timeline
 
     Args:
-        timeline_data: Dictionary containing timeline data
+        timeline_data: Dictionary containing timeline data (optional)
 
     Returns:
         Path to generated HTML file
     """
+    # If no timeline data provided, try to generate it
+    if timeline_data is None:
+        timeline_data = generate_timeline_data()
+
+    # If still no data, try to load from file
+    if timeline_data is None:
+        timeline_file = Path("output/json/timeline_data.json")
+        if timeline_file.exists():
+            try:
+                timeline_data = load_json(timeline_file)
+            except Exception as e:
+                logger.error(f"Error loading timeline data: {e}")
+                timeline_data = {}
+
     # Render HTML template
     template = Template(TIMELINE_HTML_TEMPLATE)
     html_content = template.render(

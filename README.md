@@ -205,6 +205,7 @@ The crawler automatically manages historical data:
 3. Files older than 7 days are automatically cleaned up from:
    - `output/json/`
    - `output/result/history/`
+   - `output/bots/`
    - `logs/`
 
 You can manually manage data using the maintenance script:

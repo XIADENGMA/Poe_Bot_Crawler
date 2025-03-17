@@ -29,9 +29,10 @@ JSON_DIR = OUTPUT_DIR / "json"
 RESULT_DIR = OUTPUT_DIR / "result"
 BOT_INFO_DIR = RESULT_DIR / "bot_info"
 LOGS_DIR = BASE_DIR / "logs"
+BOTS_DIR = OUTPUT_DIR / "bots"
 
 # Ensure all directories exist
-for directory in [OUTPUT_DIR, JSON_DIR, RESULT_DIR, BOT_INFO_DIR, LOGS_DIR]:
+for directory in [OUTPUT_DIR, JSON_DIR, RESULT_DIR, BOT_INFO_DIR, LOGS_DIR, BOTS_DIR]:
     directory.mkdir(exist_ok=True)
 
 # Configure logging
@@ -136,6 +137,7 @@ def main():
         clean_old_files(JSON_DIR, days=args.days)
         clean_old_files(BOT_INFO_DIR, days=args.days)
         clean_old_files(LOGS_DIR, days=args.days)
+        clean_old_files(BOTS_DIR, days=args.days)
         logger.info("Cleanup complete")
 
     return 0

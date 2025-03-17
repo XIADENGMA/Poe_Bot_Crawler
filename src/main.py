@@ -91,6 +91,12 @@ def main():
             clean_old_files(directory)
             logger.info(f"Cleaned old files in {directory}")
 
+        # Clean old files in output/bots directory
+        BOTS_DIR = BASE_DIR / "output" / "bots"
+        if BOTS_DIR.exists():
+            clean_old_files(BOTS_DIR)
+            logger.info(f"Cleaned old files in {BOTS_DIR}")
+
         logger.info("Process completed successfully!")
         print(f"\nBot list saved to: {updated_filepath}")
         print(f"HTML generated at: {html_path}")

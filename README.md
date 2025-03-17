@@ -10,10 +10,11 @@ A tool for crawling and collecting data about AI bots on the Poe platform, inclu
 2. Collects detailed information for each bot
 3. Parses credit pricing information
 4. Generates an HTML dashboard to visualize the results
-5. Supports automated daily updates via GitHub Actions
-6. Automatically archives HTML files to a history directory
-7. Maintains the most recent HTML file as index.html
-8. Performs data management by cleaning up files older than 7 days
+5. Creates timeline visualizations to track changes in bot pricing and availability
+6. Supports automated daily updates via GitHub Actions
+7. Automatically archives HTML files to a history directory
+8. Maintains the most recent HTML files as index.html and timeline.html
+9. Performs data management by cleaning up files older than 7 days
 
 ## Requirements
 
@@ -55,8 +56,8 @@ P_LAT=your_p-lat_cookie
 A typical workflow for this project consists of three main steps:
 
 1. **Data Crawling**: Run the main crawler to fetch bot data from Poe
-2. **HTML Generation**: The crawler automatically generates an HTML dashboard
-3. **Maintenance**: Run maintenance tasks to manage files and keep the dashboard updated
+2. **HTML Generation**: The crawler automatically generates HTML dashboards
+3. **Maintenance**: Run maintenance tasks to manage files and keep the dashboards updated
 
 #### Step 1: Run the crawler
 
@@ -70,24 +71,27 @@ This will:
 - Fetch the official bot list from Poe
 - Collect detailed information for each bot
 - Parse pricing information
-- Generate an HTML dashboard in the `output/result/history/` directory
-- Copy the dashboard to `output/result/index.html`
+- Generate HTML dashboards in the `output/result/history/` directory
+- Create timeline visualization for tracking changes in bots and pricing
+- Copy the dashboards to `output/result/index.html` and `output/result/timeline.html`
 - Clean up files older than 7 days
 - Output file paths for the generated files
 
 #### Step 2: View the results
 
-Navigate to the output directory and open the HTML file in your browser:
+Navigate to the output directory and open the HTML files in your browser:
 
 ```bash
 # Linux/macOS
 open output/result/index.html
+open output/result/timeline.html
 
 # Windows
 start output/result/index.html
+start output/result/timeline.html
 ```
 
-Alternatively, you can directly open the file in your preferred web browser.
+Alternatively, you can directly open the files in your preferred web browser.
 
 #### Step 3: Manual maintenance (if needed)
 
@@ -108,7 +112,9 @@ python src/maintenance.py --clean-old-files --days 14
 - Bot list is saved in the `output/json/` directory
 - Bot details are saved in the `output/bots/` directory
 - HTML dashboard is saved in the `output/result/history/` directory
+- Timeline visualization is saved in the `output/result/timeline/` directory
 - Most recent HTML dashboard is available as `output/result/index.html`
+- Most recent timeline visualization is available as `output/result/timeline.html`
 
 ## Automated Updates
 
@@ -143,7 +149,8 @@ Poe_crawler/
 │   ├── main.py           # Main program entry point
 │   ├── bot_list.py       # Functions to retrieve bot list
 │   ├── bot_details.py    # Functions to get bot details
-│   ├── html_generator.py # Functions to generate HTML dashboard
+│   ├── bot_info_generator.py # Functions to generate HTML dashboard
+│   ├── timeline_generator.py # Functions to generate timeline visualization
 │   ├── maintenance.py    # Maintenance utilities
 │   └── utils.py          # Utility functions
 └── output/               # Output directory
@@ -151,6 +158,8 @@ Poe_crawler/
     ├── bots/             # JSON files with bot details
     └── result/           # Generated HTML dashboards
         ├── index.html    # Most recent HTML dashboard
+        ├── timeline.html # Most recent timeline visualization
+        ├── timeline/     # Archive of historical timeline files
         └── history/      # Archive of historical HTML files
 ```
 
@@ -186,7 +195,9 @@ The crawler generates several output files:
 1. `output/json/official_bots_list_YYYY-MM-DD.json` - Initial bot list
 2. `output/json/official_bots_with_prices_YYYY-MM-DD.json` - Bot list with pricing details
 3. `output/result/history/bots_YYYY-MM-DD.html` - HTML dashboard displaying all bots with their details
-4. `output/result/index.html` - Copy of the most recent HTML dashboard
+4. `output/result/timeline/timeline_YYYY-MM-DD.html` - Timeline visualization showing changes in bots and pricing
+5. `output/result/index.html` - Copy of the most recent HTML dashboard
+6. `output/result/timeline.html` - Copy of the most recent timeline visualization
 
 ## License
 
@@ -201,10 +212,13 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 The crawler automatically manages historical data:
 
 1. HTML files are saved to `output/result/history/` directory
-2. The most recent HTML file is copied to `output/result/index.html`
-3. Files older than 7 days are automatically cleaned up from:
+2. Timeline files are saved to `output/result/timeline/` directory
+3. The most recent HTML file is copied to `output/result/index.html`
+4. The most recent timeline file is copied to `output/result/timeline.html`
+5. Files older than 7 days are automatically cleaned up from:
    - `output/json/`
    - `output/result/history/`
+   - `output/result/timeline/`
    - `output/bots/`
    - `logs/`
 

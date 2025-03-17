@@ -4,7 +4,7 @@ name: Daily Poe Bot Crawler
 
 on:
   schedule:
-    # - cron: '0 0 * * *' # 北京时间上午08:00（UTC+8）
+    - cron: '0 0 * * *' # 北京时间上午08:00（UTC+8）
   workflow_dispatch: # 允许手动触发工作流
 
 # 为整个工作流设置权限
@@ -32,7 +32,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # 获取完整历史以便正确提交
+          fetch-depth: 1 # 只获取最新提交，不拉取历史记录
+          persist-credentials: true
+          # 注意：不使用pull请求更新本地仓库
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -104,11 +106,19 @@ jobs:
       - name: Commit and push changes
         run: |
           DATE=$(date +'%Y-%m-%d')
-          # 只添加未被忽略的目录
-          git add output/
+          # 配置Git以忽略其他更改，只关注output目录
+          git config --local core.excludesAll true
+
+          # 仅添加output目录
+          git add -f output/
+
+          # 检查是否有变更需要提交
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "No changes to commit in output folder"
           else
-            git commit -m "Update Poe data - $DATE"
-            git push
+            git commit -m "Update Poe data - $DATE [Skip CI]"
+
+            # 仅推送当前分支的最新提交
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+            echo "Successfully pushed output folder changes"
           fi

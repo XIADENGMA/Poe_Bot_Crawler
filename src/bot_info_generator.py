@@ -448,8 +448,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .bot-handle-container {
             display: flex;
             align-items: center;
-            justify-content: space-between;
             width: 100%;
+            margin-bottom: 4px;
         }
 
         .bot-handle {
@@ -504,17 +504,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         /* Style for the inline creator info */
         .inline-creator-info {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
             padding: 3px 8px;
             background-color: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-            display: flex;
-            align-items: center;
             font-size: 0.75rem;
-            margin-right: 10px;
+            margin-top: 8px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .inline-creator-info .creator-avatar {
@@ -564,10 +564,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .creator-info {
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
-            padding: 8px 12px;
             background-color: var(--pricing-bg);
-            border-radius: 8px;
+            border-radius: 6px;
+            margin-top: 4px;
+            padding: 5px 8px;
+            font-size: 0.8rem;
+            width: fit-content;
             border: 1px solid var(--border-color);
         }
 
@@ -870,19 +872,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                         <h3 class="bot-name"><a href="https://poe.com/{{ bot.handle }}" target="_blank">{{ bot.display_name }}</a></h3>
                         <div class="bot-handle-container">
                             <div class="bot-handle"><a href="https://poe.com/{{ bot.handle }}" target="_blank">@{{ bot.handle }}</a></div>
-                            {% if bot.creator %}
-                            <div class="creator-info inline-creator-info">
-                                {% if bot.creator.profile_photo_url %}
-                                <img class="creator-avatar" src="{{ bot.creator.profile_photo_url }}" alt="{{ bot.creator.full_name }}">
-                                {% endif %}
-                                <div class="creator-name">{{ bot.creator.full_name }}</div>
-                            </div>
-                            {% else %}
-                            <div class="creator-info inline-creator-info">
-                                <div class="creator-name">Unknown Creator</div>
-                            </div>
-                            {% endif %}
                         </div>
+                        {% if bot.creator %}
+                        <div class="creator-info inline-creator-info">
+                            {% if bot.creator.profile_photo_url %}
+                            <img class="creator-avatar" src="{{ bot.creator.profile_photo_url }}" alt="{{ bot.creator.full_name }}">
+                            {% endif %}
+                            <div class="creator-name">{{ bot.creator.full_name }}</div>
+                        </div>
+                        {% else %}
+                        <div class="creator-info inline-creator-info">
+                            <div class="creator-name">Unknown Creator</div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="bot-content">

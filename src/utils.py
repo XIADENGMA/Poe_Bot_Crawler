@@ -345,6 +345,7 @@ def compare_bot_data(today_data, previous_data):
             changes["price_changes"].append({
                 "id": bot_id,
                 "name": bot.get("displayName", ""),
+                "handle": bot.get("handle", ""),
                 "old_price": previous_price,
                 "new_price": current_price
             })

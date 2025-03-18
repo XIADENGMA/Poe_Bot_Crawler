@@ -524,11 +524,13 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         .diff-highlight.increase {
             background-color: rgba(220, 53, 69, 0.15);
             color: var(--price-increase);
+            border-left: 3px solid var(--price-increase);
         }
 
         .diff-highlight.decrease {
             background-color: rgba(40, 167, 69, 0.15);
             color: var(--price-decrease);
+            border-left: 3px solid var(--price-decrease);
         }
 
         .diff-highlight::after {
@@ -543,14 +545,6 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             border-bottom: 4px solid transparent;
         }
 
-        .diff-highlight.increase::after {
-            border-left: 4px solid var(--price-increase);
-        }
-
-        .diff-highlight.decrease::after {
-            border-left: 4px solid var(--price-decrease);
-        }
-
         .hidden {
             display: none;
         }
@@ -558,6 +552,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         .details-cards {
             display: flex;
             gap: 20px;
+            margin-top: 15px;
         }
 
         .details-card {
@@ -567,6 +562,12 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             padding: 20px;
             border: 1px solid var(--border-color);
             position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .details-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .details-card::before {
@@ -585,6 +586,14 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
         .details-card-new {
             border-left: none;
+        }
+
+        .details-card-old::before {
+            background-color: var(--price-increase);
+        }
+
+        .details-card-new::before {
+            background-color: var(--price-decrease);
         }
 
         .pricing-header {
@@ -857,14 +866,6 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             border-radius: 4px;
             display: inline-block;
         }
-
-        .details-card-old::before {
-            background-color: var(--price-increase);
-        }
-
-        .details-card-new::before {
-            background-color: var(--price-decrease);
-        }
     </style>
 </head>
 <body>
@@ -912,97 +913,58 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                             <div class="price-change-summary">
                                 <a href="https://poe.com/{{ change.handle }}" target="_blank" class="bot-link">{{ change.name }}</a>
                                 <span class="price-change-text">
-                                    {% if change.old_output is defined and change.new_output is defined and change.old_output is not none and change.new_output is not none %}
-                                    输出: <span class="{% if change.old_output < change.new_output %}price-increase{% else %}price-decrease{% endif %}">
-                                        {{ change.old_output }} 积分/message → {{ change.new_output }} 积分/message
+                                    标准消息: <span class="{% if (change.old_standard_message or 0) < (change.new_standard_message or 0) %}price-increase{% else %}price-decrease{% endif %}">
+                                        {{ change.old_standard_message or 0 }} 积分/message → {{ change.new_standard_message or 0 }} 积分/message
                                     </span>
-                                    {% elif change.old_standard_message is defined and change.new_standard_message is defined and change.old_standard_message is not none and change.new_standard_message is not none %}
-                                    标准消息: <span class="{% if change.old_standard_message < change.new_standard_message %}price-increase{% else %}price-decrease{% endif %}">
-                                        {{ change.old_standard_message }} 积分/message → {{ change.new_standard_message }} 积分/message
-                                    </span>
-                                    {% else %}
-                                    标准消息: <span class="{% if change.old_price < change.new_price %}price-increase{% else %}price-decrease{% endif %}">
-                                        {{ change.old_price }} 积分/message → {{ change.new_price }} 积分/message
-                                    </span>
-                                    {% endif %}
                                 </span>
                                 <button class="toggle-details" onclick="toggleDetails(this)">
                                     <span class="expand-icon">▼</span>
                                 </button>
                             </div>
                             <div class="price-change-details hidden">
-                                {% if change.old_price != 0 and change.new_price != 0 %}
-                                <div class="price-comparison-summary">
-                                    <div>价格变化: {{ change.old_price }} → {{ change.new_price }} 积分</div>
-                                    {% if change.old_price != 0 %}
-                                    {% set percentage = ((change.new_price - change.old_price) / change.old_price * 100) | round(1) %}
-                                    <div>
-                                        {% if percentage > 0 %}
-                                        <span class="price-change-percentage price-increase-percentage">+{{ percentage }}%</span>
-                                        {% else %}
-                                        <span class="price-change-percentage price-decrease-percentage">{{ percentage }}%</span>
-                                        {% endif %}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                {% endif %}
-
-                                {% if change.description or change.creator or change.model %}
-                                <div class="bot-info-card">
-                                    {% if change.description %}
-                                    <div class="bot-description">{{ change.description }}</div>
-                                    {% endif %}
-                                    <div class="bot-meta">
-                                        {% if change.creator %}
-                                        <div class="bot-creator">创作者: {{ change.creator }}</div>
-                                        {% endif %}
-                                        {% if change.model %}
-                                        <div class="bot-model">模型: {{ change.model }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                {% endif %}
-
                                 <div class="details-cards">
                                     <div class="details-card details-card-old">
                                         <div class="details-card-title">
                                             <h4>之前价格</h4>
-                                            <span class="price-badge old-price-badge">{{ change.old_price }} 积分</span>
+                                            <span class="price-badge old-price-badge">{{ change.old_price or 0 }} 积分</span>
                                         </div>
                                         <ul class="bot-details-list">
-                                            {% if change.old_standard_message is defined and change.old_standard_message is not none %}
                                             <li>
                                                 <span class="detail-label">标准消息:</span>
-                                                <span class="detail-value">{{ change.old_standard_message }} 积分</span>
+                                                <span class="detail-value {% if (change.old_standard_message or 0) != (change.new_standard_message or 0) %}diff-highlight {% if (change.old_standard_message or 0) < (change.new_standard_message or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_standard_message if change.old_standard_message is not none else change.old_price }} 积分
+                                                </span>
                                             </li>
-                                            {% else %}
-                                            <li>
-                                                <span class="detail-label">标准消息:</span>
-                                                <span class="detail-value">{{ change.old_price }} 积分</span>
-                                            </li>
-                                            {% endif %}
-                                            {% if change.old_text_input is defined and change.old_text_input is not none %}
+                                            {% if (change.old_text_input or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">文本输入:</span>
-                                                <span class="detail-value">{{ change.old_text_input }} 积分</span>
+                                                <span class="detail-value {% if (change.old_text_input or 0) != (change.new_text_input or 0) %}diff-highlight {% if (change.old_text_input or 0) < (change.new_text_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_text_input }} 积分
+                                                </span>
                                             </li>
                                             {% endif %}
-                                            {% if change.old_image_input is defined and change.old_image_input is not none %}
+                                            {% if (change.old_image_input or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">图片输入:</span>
-                                                <span class="detail-value">{{ change.old_image_input }} 积分</span>
+                                                <span class="detail-value {% if (change.old_image_input or 0) != (change.new_image_input or 0) %}diff-highlight {% if (change.old_image_input or 0) < (change.new_image_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_image_input }} 积分
+                                                </span>
                                             </li>
                                             {% endif %}
-                                            {% if change.old_cache_input is defined and change.old_cache_input is not none %}
+                                            {% if (change.old_cache_input or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">缓存输入:</span>
-                                                <span class="detail-value">{{ change.old_cache_input }} 积分</span>
+                                                <span class="detail-value {% if (change.old_cache_input or 0) != (change.new_cache_input or 0) %}diff-highlight {% if (change.old_cache_input or 0) < (change.new_cache_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_cache_input }} 积分
+                                                </span>
                                             </li>
                                             {% endif %}
-                                            {% if change.old_output is defined and change.old_output is not none %}
+                                            {% if (change.old_output or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">输出:</span>
-                                                <span class="detail-value">{{ change.old_output }} 积分</span>
+                                                <span class="detail-value {% if (change.old_output or 0) != (change.new_output or 0) %}diff-highlight {% if (change.old_output or 0) < (change.new_output or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_output }} 积分
+                                                </span>
                                             </li>
                                             {% endif %}
                                         </ul>
@@ -1010,52 +972,43 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                     <div class="details-card details-card-new">
                                         <div class="details-card-title">
                                             <h4>当前价格</h4>
-                                            <span class="price-badge new-price-badge">{{ change.new_price }} 积分</span>
+                                            <span class="price-badge new-price-badge">{{ change.new_price or 0 }} 积分</span>
                                         </div>
                                         <ul class="bot-details-list">
-                                            {% if change.new_standard_message is defined and change.new_standard_message is not none %}
                                             <li>
                                                 <span class="detail-label">标准消息:</span>
-                                                <span class="detail-value {% if change.old_standard_message is defined and change.old_standard_message is not none and change.new_standard_message is not none and change.old_standard_message != change.new_standard_message %}diff-highlight {% if change.old_standard_message < change.new_standard_message %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.new_standard_message }} 积分
+                                                <span class="detail-value {% if (change.old_standard_message or 0) != (change.new_standard_message or 0) %}diff-highlight {% if (change.old_standard_message or 0) < (change.new_standard_message or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_standard_message if change.new_standard_message is not none else change.new_price }} 积分
                                                 </span>
                                             </li>
-                                            {% else %}
-                                            <li>
-                                                <span class="detail-label">标准消息:</span>
-                                                <span class="detail-value {% if change.old_price != change.new_price %}diff-highlight {% if change.old_price < change.new_price %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.new_price }} 积分
-                                                </span>
-                                            </li>
-                                            {% endif %}
-                                            {% if change.new_text_input is defined and change.new_text_input is not none %}
+                                            {% if (change.new_text_input or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">文本输入:</span>
-                                                <span class="detail-value {% if change.old_text_input is defined and change.old_text_input is not none and change.new_text_input is not none and change.old_text_input != change.new_text_input %}diff-highlight {% if change.old_text_input < change.new_text_input %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_text_input or 0) != (change.new_text_input or 0) %}diff-highlight {% if (change.old_text_input or 0) < (change.new_text_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
                                                     {{ change.new_text_input }} 积分
                                                 </span>
                                             </li>
                                             {% endif %}
-                                            {% if change.new_image_input is defined and change.new_image_input is not none %}
+                                            {% if (change.new_image_input or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">图片输入:</span>
-                                                <span class="detail-value {% if change.old_image_input is defined and change.old_image_input is not none and change.new_image_input is not none and change.old_image_input != change.new_image_input %}diff-highlight {% if change.old_image_input < change.new_image_input %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_image_input or 0) != (change.new_image_input or 0) %}diff-highlight {% if (change.old_image_input or 0) < (change.new_image_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
                                                     {{ change.new_image_input }} 积分
                                                 </span>
                                             </li>
                                             {% endif %}
-                                            {% if change.new_cache_input is defined and change.new_cache_input is not none %}
+                                            {% if (change.new_cache_input or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">缓存输入:</span>
-                                                <span class="detail-value {% if change.old_cache_input is defined and change.old_cache_input is not none and change.new_cache_input is not none and change.old_cache_input != change.new_cache_input %}diff-highlight {% if change.old_cache_input < change.new_cache_input %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_cache_input or 0) != (change.new_cache_input or 0) %}diff-highlight {% if (change.old_cache_input or 0) < (change.new_cache_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
                                                     {{ change.new_cache_input }} 积分
                                                 </span>
                                             </li>
                                             {% endif %}
-                                            {% if change.new_output is defined and change.new_output is not none %}
+                                            {% if (change.new_output or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">输出:</span>
-                                                <span class="detail-value {% if change.old_output is defined and change.old_output is not none and change.new_output is not none and change.old_output != change.new_output %}diff-highlight {% if change.old_output < change.new_output %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_output or 0) != (change.new_output or 0) %}diff-highlight {% if (change.old_output or 0) < (change.new_output or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
                                                     {{ change.new_output }} 积分
                                                 </span>
                                             </li>
@@ -1166,10 +1119,7 @@ def generate_timeline_data():
             "id": bot.get("bot_ID", ""),
             "handle": bot.get("handle", ""),
             "name": bot.get("display_name", "Unknown Bot"),
-            "price": get_bot_price(bot),
-            "description": bot.get("description", ""),
-            "creator": bot.get("creator", {}).get("name", "Unknown Creator"),
-            "model": get_bot_model(bot)
+            "price": get_bot_price(bot)
         })
 
     # Check price changes for existing bots
@@ -1197,11 +1147,7 @@ def generate_timeline_data():
                 "old_output": get_bot_price_component(previous_bot, "output"),
                 "new_output": get_bot_price_component(today_bot, "output"),
                 "old_standard_message": get_bot_price_component(previous_bot, "standard_message"),
-                "new_standard_message": get_bot_price_component(today_bot, "standard_message"),
-                # Add more bot details
-                "description": today_bot.get("description", ""),
-                "creator": today_bot.get("creator", {}).get("name", "Unknown Creator"),
-                "model": get_bot_model(today_bot)
+                "new_standard_message": get_bot_price_component(today_bot, "standard_message")
             })
 
     # Add to timeline data if there are changes
@@ -1263,9 +1209,15 @@ def get_bot_price_component(bot, component_name):
                                 except (ValueError, TypeError):
                                     return 0
 
-        return None
+        # If we get here, use standard price if this is standard_message
+        if component_name == "standard_message":
+            return get_bot_price(bot)
+
+        # Default value for any component
+        return 0
     except Exception:
-        return None
+        # Return 0 instead of None
+        return 0
 
 def get_bot_price(bot):
     """Extract price from bot data in any format"""

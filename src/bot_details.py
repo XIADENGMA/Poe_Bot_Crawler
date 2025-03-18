@@ -105,6 +105,130 @@ def parse_rate_menu_markdown(markdown_text, pricing_type=None, standard_price=No
 
     result = {}
 
+    # Check for Chinese standard message format
+    if "标准首条信息" in markdown_text or "类型\t评分" in markdown_text or "Message cost is variable" in markdown_text:
+        # Parse Chinese format pricing information
+
+        # Check for the specific format in the user query
+        # e.g. "类型    评分\n输入（文本）    1积分/千字符"
+        specific_format_match = "类型" in markdown_text and "评分" in markdown_text
+
+        # Handle both formats: "输入（文本）\t1积分/千字符" and regular table format
+        text_input_match = re.search(r"输入（文本）\s*(\d+)积分[/／]千字符", markdown_text, re.IGNORECASE)
+        if not text_input_match:
+            # Try alternative format with tab separation
+            text_input_match = re.search(r"输入（文本）\t(\d+)积分[/／]千字符", markdown_text, re.IGNORECASE)
+
+        # Additional pattern for the format in the user query
+        if not text_input_match and specific_format_match:
+            text_input_match = re.search(r"输入（文本）[\s\t]+(\d+)积分[/／]千字符", markdown_text, re.IGNORECASE)
+
+        image_input_match = re.search(r"输入（图片）\s*(\d+)\s*积分[/／]图片", markdown_text, re.IGNORECASE)
+        if not image_input_match:
+            image_input_match = re.search(r"输入（图片）\t(\d+)\s*积分[/／]图片", markdown_text, re.IGNORECASE)
+
+        # Additional pattern for the format in the user query
+        if not image_input_match and specific_format_match:
+            image_input_match = re.search(r"输入（图片）[\s\t]+(\d+)积分[/／]图片", markdown_text, re.IGNORECASE)
+
+        video_input_match = re.search(r"输入（视频）\s*(\d+)\s*[积分|点][/／]秒", markdown_text, re.IGNORECASE)
+        if not video_input_match:
+            video_input_match = re.search(r"输入（视频）\t(\d+)\s*[积分|点][/／]秒", markdown_text, re.IGNORECASE)
+
+        # Additional pattern for the format in the user query
+        if not video_input_match and specific_format_match:
+            video_input_match = re.search(r"输入（视频）[\s\t]+(\d+)[积分|点][/／]秒", markdown_text, re.IGNORECASE)
+
+        bot_message_match = re.search(r"机器人消息\s*(\d+)积分[/／]信息", markdown_text, re.IGNORECASE)
+        if not bot_message_match:
+            bot_message_match = re.search(r"机器人消息\t(\d+)积分[/／]信息", markdown_text, re.IGNORECASE)
+
+        # Additional pattern for the format in the user query
+        if not bot_message_match and specific_format_match:
+            bot_message_match = re.search(r"机器人消息[\s\t]+(\d+)积分[/／]信息", markdown_text, re.IGNORECASE)
+
+        chat_history_match = re.search(r"聊天历史\s*已应用输入费率", markdown_text, re.IGNORECASE)
+        if not chat_history_match:
+            chat_history_match = re.search(r"聊天历史\t已应用输入费率", markdown_text, re.IGNORECASE)
+
+        # Additional pattern for the format in the user query
+        if not chat_history_match and specific_format_match:
+            chat_history_match = re.search(r"聊天历史[\s\t]+已应用输入费率", markdown_text, re.IGNORECASE)
+
+        token_context_match = re.search(r"当上下文超过(\d+)k个Tocken时，费率将翻倍", markdown_text, re.IGNORECASE)
+        if not token_context_match:
+            token_context_match = re.search(r"当上下文超过(\d+)k个Token时，费率将翻倍", markdown_text, re.IGNORECASE)
+
+        # Additional pattern for the format in the user query
+        if not token_context_match and specific_format_match:
+            token_context_match = re.search(r"当上下文超过(\d+)k个(?:Tocken|Token)时，费率将翻倍", markdown_text, re.IGNORECASE)
+
+        # Also try matching English formats that might be in the same message
+        if not text_input_match:
+            text_input_match = re.search(r"Input \(text\)\s*(\d+)\s*points?[/／]thousand characters", markdown_text, re.IGNORECASE)
+
+        if not image_input_match:
+            image_input_match = re.search(r"Input \(image\)\s*(\d+)\s*points?[/／]image", markdown_text, re.IGNORECASE)
+
+        if not video_input_match:
+            video_input_match = re.search(r"Input \(video\)\s*(\d+)\s*points?[/／]second", markdown_text, re.IGNORECASE)
+
+        if not bot_message_match:
+            bot_message_match = re.search(r"Bot message\s*(\d+)\s*points?[/／]message", markdown_text, re.IGNORECASE)
+
+        result["pricing_type"] = "variable"
+
+        if text_input_match:
+            result["text_input"] = {
+                "value": text_input_match.group(1),
+                "unit": "积分",
+                "per": {
+                    "value": "1k",
+                    "unit": "characters"
+                }
+            }
+
+        if image_input_match:
+            result["image_input"] = {
+                "value": image_input_match.group(1),
+                "unit": "积分",
+                "per": "图片"
+            }
+
+        if video_input_match:
+            result["video_input"] = {
+                "value": video_input_match.group(1),
+                "unit": "点",
+                "per": "秒"
+            }
+
+        if bot_message_match:
+            result["output"] = {
+                "value": bot_message_match.group(1),
+                "unit": "积分",
+                "per": "信息"
+            }
+
+            # Use output for standard_message
+            result["standard_message"] = {
+                "value": bot_message_match.group(1),
+                "unit": "积分",
+                "per": "信息"
+            }
+
+        if chat_history_match:
+            result["chat_history"] = "应用输入费率"
+
+        if token_context_match:
+            result["token_context_threshold"] = {
+                "value": token_context_match.group(1) + "k",
+                "action": "double_rate"
+            }
+
+        # Return early if we've processed Chinese format
+        if any([text_input_match, image_input_match, video_input_match, bot_message_match, chat_history_match, token_context_match]):
+            return result
+
     # Check for character-based pricing first
     character_match = re.search(r"\|\s*(?:text\s+)?input\s*\|\s*(\d+)\s*points?\s*\/\s*(?:(\d+)k\s*)?(characters?)\s*\|",
                                markdown_text, re.IGNORECASE)

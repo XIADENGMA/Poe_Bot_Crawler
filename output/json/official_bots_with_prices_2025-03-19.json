@@ -3456,7 +3456,7 @@
   },
   "142": {
     "display_name": "MythoMax-L2-13B",
-    "description": "This model was created by Gryphe based on LLama-2-13B and is proficient at both roleplaying and storywriting.",
+    "description": "This model was created by Gryphe based on LLama-2-13B and is proficient at both roleplaying and storywriting. This model will be deprecated March 24, 2025.",
     "bot_ID": 3618254,
     "handle": "MythoMax-L2-13B",
     "picture_url": "https://qph.cf2.poecdn.net/main-thumb-pb-3618254-200-jizfrjckqzmdtpllccvvkrexzcmwjllx.jpeg",

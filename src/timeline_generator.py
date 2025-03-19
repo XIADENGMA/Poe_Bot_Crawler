@@ -6,7 +6,7 @@ from datetime import datetime
 
 from jinja2 import Template
 
-from utils import CURRENT_DATE, RESULT_DIR, load_json
+from src.utils import CURRENT_DATE, RESULT_DIR, load_json
 
 # Configure logging - use the logger from the main module
 logger = logging.getLogger("src.timeline_generator")
@@ -27,22 +27,28 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         :root {
             /* Light mode (default) */
             --primary-color: #4361ee;
+            --primary-color-rgb: 67, 97, 238;
             --secondary-color: #3f37c9;
+            --secondary-color-rgb: 63, 55, 201;
             --accent-color: #4895ef;
-            --text-color: #333;
-            --light-text: #6c757d;
+            --accent-color-rgb: 72, 149, 239;
+            --text-color: #2d3748;
+            --text-color-rgb: 45, 55, 72;
+            --light-text: #4a5568;
             --bg-color: #f8f9fa;
+            --bg-color-rgb: 248, 249, 250;
             --card-bg: #fff;
             --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
             --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             --header-bg: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
             --border-color: #e9ecef;
+            --border-color-rgb: 233, 236, 239;
             --info-bg: #e7f5ff;
             --timeline-line: #4361ee;
             --timeline-dot: #4361ee;
             --timeline-dot-border: #fff;
             --timeline-card-bg: #fff;
-            --timeline-date: #4361ee;
+            --timeline-date: #3a0ca3;
             --toggle-bg: #f1f1f1;
             --toggle-dot: #4361ee;
             --toggle-icon: #333;
@@ -51,23 +57,33 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             --new-bot-bg: #e7f5ff;
             --price-change-bg: rgba(230, 230, 250, 0.3);
             --price-increase: #dc3545;
+            --price-increase-rgb: 220, 53, 69;
             --price-decrease: #28a745;
+            --price-decrease-rgb: 40, 167, 69;
+            --detail-label-color: #4a5568;
+            --detail-value-color: #2d3748;
         }
 
         /* Dark mode color scheme */
         :root[data-theme="dark"] {
             /* Dark mode */
             --primary-color: #6c8aff;
+            --primary-color-rgb: 108, 138, 255;
             --secondary-color: #5e60ce;
+            --secondary-color-rgb: 94, 96, 206;
             --accent-color: #64dfdf;
+            --accent-color-rgb: 100, 223, 223;
             --text-color: #e9ecef;
+            --text-color-rgb: 233, 236, 239;
             --light-text: #adb5bd;
             --bg-color: #121212;
+            --bg-color-rgb: 18, 18, 18;
             --card-bg: #1e1e1e;
             --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
             --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             --header-bg: linear-gradient(135deg, #5e60ce 0%, #6930c3 100%);
             --border-color: #333;
+            --border-color-rgb: 51, 51, 51;
             --info-bg: #1a365d;
             --timeline-line: #5e60ce;
             --timeline-dot: #5e60ce;
@@ -82,7 +98,11 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             --new-bot-bg: #1a365d;
             --price-change-bg: rgba(230, 230, 250, 0.08);
             --price-increase: #ff4d6a;
+            --price-increase-rgb: 255, 77, 106;
             --price-decrease: #48bb78;
+            --price-decrease-rgb: 72, 187, 120;
+            --detail-label-color: #cbd5e0;
+            --detail-value-color: #f7fafc;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -93,11 +113,13 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                 --text-color: #e9ecef;
                 --light-text: #adb5bd;
                 --bg-color: #121212;
+                --bg-color-rgb: 18, 18, 18;
                 --card-bg: #1e1e1e;
                 --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
                 --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
                 --header-bg: linear-gradient(135deg, #4cc9f0 0%, #3a0ca3 100%);
                 --border-color: #2d3748;
+                --border-color-rgb: 45, 55, 72;
                 --info-bg: #1a365d;
                 --timeline-line: #4cc9f0;
                 --timeline-dot: #4cc9f0;
@@ -133,7 +155,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 20px;
         }
@@ -144,34 +166,64 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             padding: 40px 0;
             text-align: center;
             margin-bottom: 40px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
             border-bottom: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 150%, rgba(67, 97, 238, 0.15) 0%, transparent 70%),
+                        radial-gradient(circle at 80% -20%, rgba(58, 12, 163, 0.2) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         header h1 {
             margin: 0;
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2.8rem;
+            font-weight: 800;
             letter-spacing: 0.5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
 
         .info {
             background-color: var(--info-bg);
-            padding: 20px;
-            border-radius: 12px;
+            padding: 25px;
+            border-radius: 16px;
             margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
             text-align: center;
             max-width: 900px;
             margin-left: auto;
             margin-right: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 10% 50%, rgba(67, 97, 238, 0.08) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .info p {
             margin: 0;
             font-size: 1.05rem;
             line-height: 1.7;
+            color: var(--text-color);
         }
 
         .header-links {
@@ -184,20 +236,21 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             display: inline-block;
             background-color: var(--primary-color);
             color: white !important;
-            padding: 6px 12px;
-            border-radius: 20px;
+            padding: 10px 20px;
+            border-radius: 30px;
             text-decoration: none;
             margin-left: 10px;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .back-link:hover {
             background-color: var(--secondary-color);
             text-decoration: none !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         /* Theme toggle style */
@@ -286,7 +339,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         /* Timeline specific styles */
         .timeline {
             position: relative;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 60px 0;
         }
@@ -298,8 +351,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             background-color: var(--timeline-line);
             top: 0;
             bottom: 0;
-            left: 100px;
-            margin-left: -2px;
+            left: 98px;
             border-radius: 2px;
             z-index: 0;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -310,18 +362,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             position: relative;
             width: 100%;
             box-sizing: border-box;
-            animation: fadeIn 0.6s ease-out both;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            margin-bottom: 30px;
         }
 
         .timeline-item::after {
@@ -332,18 +373,17 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             background-color: var(--timeline-dot);
             border: 4px solid var(--timeline-dot-border);
             border-radius: 50%;
-            top: 15px;
-            left: 87px;
+            top: 25px;
+            left: 86px;
             z-index: 1;
             box-sizing: content-box;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
         }
 
         .timeline-item:hover::after {
-            /* Remove transform and shadow hover effects */
-            transform: none;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 16px rgba(0, 0, 0, 0.4);
         }
 
         .timeline-left {
@@ -363,10 +403,10 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .timeline-content {
-            padding: 25px;
+            padding: 25px 30px;
             background-color: var(--timeline-card-bg);
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             position: relative;
             transition: all 0.3s ease;
             border: 1px solid var(--border-color);
@@ -374,30 +414,22 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .timeline-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
-            opacity: 0.7;
+            display: none;
         }
 
         .timeline-content:hover {
-            /* Remove transform and shadow hover effects */
-            transform: none;
-            box-shadow: var(--card-shadow);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
         .timeline-date {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--timeline-date);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 8px;
+            padding-bottom: 10px;
             display: inline-block;
+            letter-spacing: 0.5px;
         }
 
         .timeline-changes {
@@ -407,17 +439,17 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .timeline-changes li {
-            margin-bottom: 15px;
-            padding: 12px 15px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
+            margin-bottom: 18px;
+            padding: 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
         }
 
         .timeline-changes li:hover {
-            /* Remove shadow and transform hover effects */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transform: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            transform: translateY(-3px);
         }
 
         .timeline-changes li:last-child {
@@ -425,34 +457,75 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .new-bot {
-            background-color: var(--new-bot-bg);
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
         }
 
         .price-change {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
             margin-bottom: 15px;
         }
 
         .price-change-summary {
             display: flex;
             align-items: center;
-            padding: 10px;
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 0;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .new-bot .price-change-summary {
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .price-change .price-change-summary {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .price-change-summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 4px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .price-change-summary:hover {
+            background-color: rgba(var(--primary-color-rgb), 0.05);
         }
 
         .price-change-text {
             margin: 0 10px;
             flex-grow: 1;
+            font-size: 0.95rem;
+            color: var(--text-color);
         }
 
         .price-change-details {
             padding: 20px;
-            background-color: var(--bg-color);
-            border-radius: 0 0 8px 8px;
-            margin-top: -5px;
-            border: 1px solid var(--border-color);
+            background-color: rgba(var(--bg-color-rgb), 0.5);
+            margin-top: 0;
             border-top: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .price-comparison-summary {
@@ -491,9 +564,11 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .details-card-title h4 {
-            margin: 0;
-            padding: 0;
-            border: none;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.1rem;
+            color: var(--primary-color);
         }
 
         .details-card-title .price-badge {
@@ -551,23 +626,25 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
         .details-cards {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             margin-top: 15px;
         }
 
         .details-card {
             flex: 1;
             background-color: var(--card-bg);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 20px;
             border: 1px solid var(--border-color);
             position: relative;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            overflow: hidden;
         }
 
         .details-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .details-card::before {
@@ -577,7 +654,8 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             left: 0;
             height: 100%;
             width: 4px;
-            border-radius: 4px 0 0 4px;
+            opacity: 0.8;
+            border-radius: 0;
         }
 
         .details-card-old {
@@ -619,8 +697,16 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         .bot-details-list li {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(var(--border-color-rgb), 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .bot-details-list li:hover {
+            background-color: rgba(var(--primary-color-rgb), 0.03);
+            padding-left: 5px;
+            padding-right: 5px;
+            border-radius: 4px;
         }
 
         .bot-details-list li:last-child {
@@ -628,12 +714,15 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .detail-label {
-            font-weight: 500;
-            color: var(--text-color);
+            font-weight: 600;
+            color: var(--detail-label-color);
+            font-size: 0.95rem;
         }
 
         .detail-value {
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--detail-value-color);
         }
 
         .toggle-details {
@@ -642,21 +731,24 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             border: none;
             color: var(--primary-color);
             cursor: pointer;
-            padding: 5px;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
+            transition: all 0.2s ease;
+            background-color: rgba(var(--primary-color-rgb), 0.05);
         }
 
         .toggle-details:hover {
             background-color: var(--button-hover);
+            transform: scale(1.1);
         }
 
         .expand-icon {
-            font-size: 12px;
+            font-size: 14px;
             transition: transform 0.3s ease;
         }
 
@@ -670,11 +762,14 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             font-weight: 600;
             transition: all 0.2s ease;
             border-bottom: 1px dotted transparent;
+            font-size: 1.05rem;
+            padding: 2px 0;
         }
 
         .bot-link:hover {
             text-decoration: none;
             border-bottom: 1px dotted var(--primary-color);
+            color: var(--secondary-color);
         }
 
         .no-changes {
@@ -719,7 +814,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             }
 
             header h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
 
             .timeline::after {
@@ -734,6 +829,17 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
             .timeline-item::after {
                 left: 21px;
+                width: 20px;
+                height: 20px;
+            }
+
+            .timeline-content {
+                padding: 20px;
+            }
+
+            .timeline-date {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
             }
 
             .details-cards {
@@ -743,6 +849,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
             .price-change-summary {
                 flex-wrap: wrap;
+                padding: 12px;
             }
 
             .price-comparison-summary {
@@ -779,6 +886,10 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                 margin-top: 8px;
             }
 
+            .details-card {
+                padding: 15px;
+            }
+
             .bot-meta {
                 flex-direction: column;
                 gap: 8px;
@@ -805,19 +916,28 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
             .timeline-item {
                 padding-left: 60px;
-                padding-right: 15px;
+                padding-right: 10px;
+            }
+
+            .timeline-content {
+                padding: 15px;
             }
 
             .price-change-details {
-                padding: 10px;
+                padding: 15px;
             }
 
             .details-card {
-                padding: 10px;
+                padding: 12px;
             }
 
             .bot-info-card {
                 padding: 10px;
+            }
+
+            .timeline-date {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
             }
         }
 
@@ -850,6 +970,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             margin-bottom: 10px;
             line-height: 1.5;
             font-size: 0.95rem;
+            color: var(--text-color);
         }
 
         .bot-meta {
@@ -865,6 +986,30 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             background-color: var(--bg-color);
             border-radius: 4px;
             display: inline-block;
+        }
+
+        /* Enhanced scrolling animation */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 6px;
+            border: 3px solid var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
         }
     </style>
 </head>
@@ -889,7 +1034,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="container">
         {% if timeline_data %}
         <div class="timeline">
-            {% for date, changes in timeline_data.items() %}
+            {% for date, changes in timeline_data.items()|sort(reverse=true) %}
             <div class="timeline-item">
                 <div class="timeline-content">
                     <div class="timeline-date">{{ date }}</div>
@@ -897,12 +1042,48 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                         {% if changes.new_bots %}
                         {% for bot in changes.new_bots %}
                         <li class="new-bot">
-                            新增机器人: <a href="https://poe.com/{{ bot.handle }}" target="_blank" class="bot-link">{{ bot.name }}</a>
-                            {% if bot.price > 0 %}
-                            ({{ bot.price }} 积分/条)
-                            {% else %}
-                            (免费)
-                            {% endif %}
+                            <div class="price-change-summary">
+                                <a href="https://poe.com/{{ bot.handle }}" target="_blank" class="bot-link">{{ bot.name }}</a>
+                                <span class="price-change-text">
+                                    新增机器人:
+                                    {% if bot.price > 0 %}
+                                    ({{ bot.price }} 积分/条)
+                                    {% else %}
+                                    (免费)
+                                    {% endif %}
+                                </span>
+                                <button class="toggle-details" onclick="toggleDetails(this)">
+                                    <span class="expand-icon">▼</span>
+                                </button>
+                            </div>
+                            <div class="price-change-details hidden">
+                                <div class="details-cards">
+                                    <div class="details-card details-card-new">
+                                        <div class="details-card-title">
+                                            <h4>机器人详情</h4>
+                                            <span class="price-badge new-price-badge">{{ bot.price or 0 }} 积分</span>
+                                        </div>
+                                        <ul class="bot-details-list">
+                                            <li>
+                                                <span class="detail-label">机器人ID:</span>
+                                                <span class="detail-value">{{ bot.id }}</span>
+                                            </li>
+                                            <li>
+                                                <span class="detail-label">机器人名称:</span>
+                                                <span class="detail-value">{{ bot.name }}</span>
+                                            </li>
+                                            <li>
+                                                <span class="detail-label">机器人Handle:</span>
+                                                <span class="detail-value">{{ bot.handle }}</span>
+                                            </li>
+                                            <li>
+                                                <span class="detail-label">标准消息价格:</span>
+                                                <span class="detail-value">{{ bot.price or 0 }} 积分</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </li>
                         {% endfor %}
                         {% endif %}
@@ -1067,7 +1248,8 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         // Toggle details for price changes
         function toggleDetails(button) {
             button.classList.toggle('expanded');
-            const detailsSection = button.closest('.price-change').querySelector('.price-change-details');
+            const parent = button.closest('.price-change') || button.closest('.new-bot');
+            const detailsSection = parent.querySelector('.price-change-details');
             detailsSection.classList.toggle('hidden');
         }
     </script>
@@ -1081,7 +1263,7 @@ def generate_timeline_data():
     Returns:
         Dictionary with timeline data or None if no changes
     """
-    from utils import JSON_DIR, load_json, CURRENT_DATE
+    from src.utils import JSON_DIR, load_json, CURRENT_DATE
 
     # Path to today's and previous day's data files
     today_file = JSON_DIR / f"official_bots_with_prices_{CURRENT_DATE}.json"
@@ -1279,7 +1461,7 @@ def generate_timeline_html(timeline_data=None):
         timeline_data = generate_timeline_data()
 
     # If still no data, try to load from file
-    if timeline_data is None:
+    if timeline_data is None or not timeline_data:
         timeline_file = Path("output/json/timeline_data.json")
         if timeline_file.exists():
             try:
@@ -1291,7 +1473,7 @@ def generate_timeline_html(timeline_data=None):
     # Render HTML template
     template = Template(TIMELINE_HTML_TEMPLATE)
     html_content = template.render(
-        timeline_data=timeline_data,
+        timeline_data=timeline_data,  # 传递完整的时间线数据
         date=CURRENT_DATE
     )
 

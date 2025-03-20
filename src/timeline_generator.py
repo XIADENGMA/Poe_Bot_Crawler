@@ -608,16 +608,22 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             border-left: 3px solid var(--price-decrease);
         }
 
-        .diff-highlight::after {
-            content: '';
-            position: absolute;
-            left: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-top: 4px solid transparent;
-            border-bottom: 4px solid transparent;
+        .diff-highlight.old {
+            background-color: rgba(220, 53, 69, 0.15);
+            color: var(--price-increase);
+            border-left: 3px solid var(--price-increase);
+        }
+
+        .diff-highlight.new {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--price-decrease);
+            border-left: 3px solid var(--price-decrease);
+        }
+
+        .diff-highlight.added {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #ff9800;
+            border-left: 3px solid #ff9800;
         }
 
         .hidden {
@@ -1043,12 +1049,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                             <div class="price-change-summary">
                                 <a href="https://poe.com/{{ bot.handle }}" target="_blank" class="bot-link">{{ bot.name }}</a>
                                 <span class="price-change-text">
-                                    新增机器人:
-                                    {% if bot.price|float > 0 %}
-                                    ({{ bot.price }} {{ bot.unit }}/{{ bot.per }})
-                                    {% else %}
-                                    (免费)
-                                    {% endif %}
+                                    ✨ 新增机器人{% if bot.price|float > 0 %}（标准信息：{{ bot.price }} {{ bot.unit }}）{% else %}（免费）{% endif %}
                                 </span>
                                 <button class="toggle-details" onclick="toggleDetails(this)">
                                     <span class="expand-icon">▼</span>
@@ -1059,25 +1060,44 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                     <div class="details-card details-card-new">
                                         <div class="details-card-title">
                                             <h4>机器人详情</h4>
-                                            <span class="price-badge new-price-badge">{{ bot.price or 0 }} {{ bot.unit }}/{{ bot.per }}</span>
                                         </div>
                                         <ul class="bot-details-list">
-                                            <li>
-                                                <span class="detail-label">机器人ID:</span>
-                                                <span class="detail-value">{{ bot.id }}</span>
-                                            </li>
-                                            <li>
-                                                <span class="detail-label">机器人名称:</span>
-                                                <span class="detail-value">{{ bot.name }}</span>
-                                            </li>
-                                            <li>
-                                                <span class="detail-label">机器人Handle:</span>
-                                                <span class="detail-value">{{ bot.handle }}</span>
-                                            </li>
                                             <li>
                                                 <span class="detail-label">标准消息价格:</span>
                                                 <span class="detail-value">{{ bot.price or 0 }} {{ bot.unit }}/{{ bot.per }}</span>
                                             </li>
+                                            {% if (bot.text_input|float or 0) > 0 %}
+                                            <li>
+                                                <span class="detail-label">文本输入:</span>
+                                                <span class="detail-value">
+                                                    {{ bot.text_input }} {{ bot.text_input_unit }}/{{ bot.text_input_per }}
+                                                </span>
+                                            </li>
+                                            {% endif %}
+                                            {% if (bot.image_input|float or 0) > 0 %}
+                                            <li>
+                                                <span class="detail-label">图片输入:</span>
+                                                <span class="detail-value">
+                                                    {{ bot.image_input }} {{ bot.image_input_unit }}/{{ bot.image_input_per }}
+                                                </span>
+                                            </li>
+                                            {% endif %}
+                                            {% if (bot.cache_input|float or 0) > 0 %}
+                                            <li>
+                                                <span class="detail-label">缓存输入:</span>
+                                                <span class="detail-value">
+                                                    {{ bot.cache_input }} {{ bot.cache_input_unit }}/{{ bot.cache_input_per }}
+                                                </span>
+                                            </li>
+                                            {% endif %}
+                                            {% if (bot.output|float or 0) > 0 %}
+                                            <li>
+                                                <span class="detail-label">输出:</span>
+                                                <span class="detail-value">
+                                                    {{ bot.output }} {{ bot.output_unit }}/{{ bot.output_per }}
+                                                </span>
+                                            </li>
+                                            {% endif %}
                                         </ul>
                                     </div>
                                 </div>
@@ -1105,19 +1125,18 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                     <div class="details-card details-card-old">
                                         <div class="details-card-title">
                                             <h4>之前价格</h4>
-                                            <span class="price-badge old-price-badge">{{ change.old_price or 0 }} {{ change.old_unit }}/{{ change.old_per }}</span>
                                         </div>
                                         <ul class="bot-details-list">
                                             <li>
                                                 <span class="detail-label">标准消息:</span>
-                                                <span class="detail-value {% if (change.old_price|float or 0) != (change.new_price|float or 0) %}diff-highlight {% if (change.old_price|float or 0) < (change.new_price|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_price|float or 0) != (change.new_price|float or 0) %}diff-highlight old{% endif %}">
                                                     {{ change.old_price or 0 }} {{ change.old_unit }}/{{ change.old_per }}
                                                 </span>
                                             </li>
                                             {% if (change.old_text_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">文本输入:</span>
-                                                <span class="detail-value {% if (change.old_text_input|float or 0) != (change.new_text_input|float or 0) %}diff-highlight {% if (change.old_text_input|float or 0) < (change.new_text_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_text_input|float or 0) != (change.new_text_input|float or 0) %}diff-highlight old{% endif %}">
                                                     {{ change.old_text_input }} {{ change.old_text_input_unit }}/{{ change.old_text_input_per }}
                                                 </span>
                                             </li>
@@ -1125,7 +1144,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                             {% if (change.old_image_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">图片输入:</span>
-                                                <span class="detail-value {% if (change.old_image_input|float or 0) != (change.new_image_input|float or 0) %}diff-highlight {% if (change.old_image_input|float or 0) < (change.new_image_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_image_input|float or 0) != (change.new_image_input|float or 0) %}diff-highlight old{% endif %}">
                                                     {{ change.old_image_input }} {{ change.old_image_input_unit }}/{{ change.old_image_input_per }}
                                                 </span>
                                             </li>
@@ -1133,7 +1152,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                             {% if (change.old_cache_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">缓存输入:</span>
-                                                <span class="detail-value {% if (change.old_cache_input|float or 0) != (change.new_cache_input|float or 0) %}diff-highlight {% if (change.old_cache_input|float or 0) < (change.new_cache_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_cache_input|float or 0) != (change.new_cache_input|float or 0) %}diff-highlight old{% endif %}">
                                                     {{ change.old_cache_input }} {{ change.old_cache_input_unit }}/{{ change.old_cache_input_per }}
                                                 </span>
                                             </li>
@@ -1141,7 +1160,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                             {% if (change.old_output|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">输出:</span>
-                                                <span class="detail-value {% if (change.old_output|float or 0) != (change.new_output|float or 0) %}diff-highlight {% if (change.old_output|float or 0) < (change.new_output|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_output|float or 0) != (change.new_output|float or 0) %}diff-highlight old{% endif %}">
                                                     {{ change.old_output }} {{ change.old_output_unit }}/{{ change.old_output_per }}
                                                 </span>
                                             </li>
@@ -1151,19 +1170,18 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                     <div class="details-card details-card-new">
                                         <div class="details-card-title">
                                             <h4>当前价格</h4>
-                                            <span class="price-badge new-price-badge">{{ change.new_price or 0 }} {{ change.new_unit }}/{{ change.new_per }}</span>
                                         </div>
                                         <ul class="bot-details-list">
                                             <li>
                                                 <span class="detail-label">标准消息:</span>
-                                                <span class="detail-value {% if (change.old_price|float or 0) != (change.new_price|float or 0) %}diff-highlight {% if (change.old_price|float or 0) < (change.new_price|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_price|float or 0) != (change.new_price|float or 0) %}diff-highlight new{% endif %}">
                                                     {{ change.new_price or 0 }} {{ change.new_unit }}/{{ change.new_per }}
                                                 </span>
                                             </li>
                                             {% if (change.new_text_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">文本输入:</span>
-                                                <span class="detail-value {% if (change.old_text_input|float or 0) != (change.new_text_input|float or 0) %}diff-highlight {% if (change.old_text_input|float or 0) < (change.new_text_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_text_input|float or 0) > 0 %}{% if (change.old_text_input|float or 0) != (change.new_text_input|float or 0) %}diff-highlight new{% endif %}{% else %}diff-highlight added{% endif %}">
                                                     {{ change.new_text_input }} {{ change.new_text_input_unit }}/{{ change.new_text_input_per }}
                                                 </span>
                                             </li>
@@ -1171,7 +1189,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                             {% if (change.new_image_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">图片输入:</span>
-                                                <span class="detail-value {% if (change.old_image_input|float or 0) != (change.new_image_input|float or 0) %}diff-highlight {% if (change.old_image_input|float or 0) < (change.new_image_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_image_input|float or 0) > 0 %}{% if (change.old_image_input|float or 0) != (change.new_image_input|float or 0) %}diff-highlight new{% endif %}{% else %}diff-highlight added{% endif %}">
                                                     {{ change.new_image_input }} {{ change.new_image_input_unit }}/{{ change.new_image_input_per }}
                                                 </span>
                                             </li>
@@ -1179,7 +1197,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                             {% if (change.new_cache_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">缓存输入:</span>
-                                                <span class="detail-value {% if (change.old_cache_input|float or 0) != (change.new_cache_input|float or 0) %}diff-highlight {% if (change.old_cache_input|float or 0) < (change.new_cache_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_cache_input|float or 0) > 0 %}{% if (change.old_cache_input|float or 0) != (change.new_cache_input|float or 0) %}diff-highlight new{% endif %}{% else %}diff-highlight added{% endif %}">
                                                     {{ change.new_cache_input }} {{ change.new_cache_input_unit }}/{{ change.new_cache_input_per }}
                                                 </span>
                                             </li>
@@ -1187,7 +1205,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                             {% if (change.new_output|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">输出:</span>
-                                                <span class="detail-value {% if (change.old_output|float or 0) != (change.new_output|float or 0) %}diff-highlight {% if (change.old_output|float or 0) < (change.new_output|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                <span class="detail-value {% if (change.old_output|float or 0) > 0 %}{% if (change.old_output|float or 0) != (change.new_output|float or 0) %}diff-highlight new{% endif %}{% else %}diff-highlight added{% endif %}">
                                                     {{ change.new_output }} {{ change.new_output_unit }}/{{ change.new_output_per }}
                                                 </span>
                                             </li>
@@ -1315,14 +1333,31 @@ def generate_timeline_data():
     new_bots = []
     for bot_id, bot in first_data.items():
         price_info = get_price_info(bot)
-        new_bots.append({
+
+        # Get component-specific price information
+        components = ["text_input", "image_input", "cache_input", "output", "standard_message"]
+        component_price_info = {}
+
+        for component in components:
+            component_info = get_component_price_info(bot, component)
+            component_price_info[component] = component_info["value"]
+            component_price_info[f"{component}_unit"] = component_info["unit"]
+            component_price_info[f"{component}_per"] = component_info["per"]
+
+        new_bot_data = {
             "id": bot.get("bot_ID", ""),
             "handle": bot.get("handle", ""),
             "name": bot.get("display_name", "Unknown Bot"),
             "price": price_info["value"],
             "unit": price_info["unit"],
             "per": price_info["per"]
-        })
+        }
+
+        # Add component-specific price information
+        new_bot_data.update(component_price_info)
+
+        new_bots.append(new_bot_data)
+        logger.info(f"New bot on {first_date}: {bot.get('handle', 'Unknown')}")
 
     # Add first date's new bots to timeline
     timeline_data[first_date] = {
@@ -1363,14 +1398,30 @@ def generate_timeline_data():
         for bot_id, bot in current_bot_ids.items():
             if bot_id not in previous_bot_ids:
                 price_info = get_price_info(bot)
-                new_bots.append({
+
+                # Get component-specific price information
+                components = ["text_input", "image_input", "cache_input", "output", "standard_message"]
+                component_price_info = {}
+
+                for component in components:
+                    component_info = get_component_price_info(bot, component)
+                    component_price_info[component] = component_info["value"]
+                    component_price_info[f"{component}_unit"] = component_info["unit"]
+                    component_price_info[f"{component}_per"] = component_info["per"]
+
+                new_bot_data = {
                     "id": bot.get("bot_ID", ""),
                     "handle": bot.get("handle", ""),
                     "name": bot.get("display_name", "Unknown Bot"),
                     "price": price_info["value"],
                     "unit": price_info["unit"],
                     "per": price_info["per"]
-                })
+                }
+
+                # Add component-specific price information
+                new_bot_data.update(component_price_info)
+
+                new_bots.append(new_bot_data)
                 logger.info(f"New bot on {current_date}: {bot.get('handle', 'Unknown')}")
 
         # Check price changes for existing bots

@@ -699,14 +699,12 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             justify-content: space-between;
             padding: 10px 0;
             border-bottom: 1px solid rgba(var(--border-color-rgb), 0.5);
-            transition: all 0.2s ease;
         }
 
+        /* 确保内部列表项不受父级悬停效果影响 */
         .bot-details-list li:hover {
-            background-color: rgba(var(--primary-color-rgb), 0.03);
-            padding-left: 5px;
-            padding-right: 5px;
-            border-radius: 4px;
+            box-shadow: none;
+            transform: none;
         }
 
         .bot-details-list li:last-child {
@@ -1046,8 +1044,8 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                 <a href="https://poe.com/{{ bot.handle }}" target="_blank" class="bot-link">{{ bot.name }}</a>
                                 <span class="price-change-text">
                                     新增机器人:
-                                    {% if bot.price > 0 %}
-                                    ({{ bot.price }} 积分/条)
+                                    {% if bot.price|float > 0 %}
+                                    ({{ bot.price }} {{ bot.unit }}/{{ bot.per }})
                                     {% else %}
                                     (免费)
                                     {% endif %}
@@ -1061,7 +1059,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                     <div class="details-card details-card-new">
                                         <div class="details-card-title">
                                             <h4>机器人详情</h4>
-                                            <span class="price-badge new-price-badge">{{ bot.price or 0 }} 积分</span>
+                                            <span class="price-badge new-price-badge">{{ bot.price or 0 }} {{ bot.unit }}/{{ bot.per }}</span>
                                         </div>
                                         <ul class="bot-details-list">
                                             <li>
@@ -1078,7 +1076,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                             </li>
                                             <li>
                                                 <span class="detail-label">标准消息价格:</span>
-                                                <span class="detail-value">{{ bot.price or 0 }} 积分</span>
+                                                <span class="detail-value">{{ bot.price or 0 }} {{ bot.unit }}/{{ bot.per }}</span>
                                             </li>
                                         </ul>
                                     </div>
@@ -1094,8 +1092,8 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                             <div class="price-change-summary">
                                 <a href="https://poe.com/{{ change.handle }}" target="_blank" class="bot-link">{{ change.name }}</a>
                                 <span class="price-change-text">
-                                    标准消息: <span class="{% if (change.old_standard_message or 0) < (change.new_standard_message or 0) %}price-increase{% else %}price-decrease{% endif %}">
-                                        {{ change.old_standard_message or 0 }} 积分/信息 → {{ change.new_standard_message or 0 }} 积分/信息
+                                    标准消息: <span class="{% if (change.old_price|float or 0) < (change.new_price|float or 0) %}price-increase{% else %}price-decrease{% endif %}">
+                                        {{ change.old_price or 0 }} {{ change.old_unit }}/{{ change.old_per }} → {{ change.new_price or 0 }} {{ change.new_unit }}/{{ change.new_per }}
                                     </span>
                                 </span>
                                 <button class="toggle-details" onclick="toggleDetails(this)">
@@ -1107,44 +1105,44 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                     <div class="details-card details-card-old">
                                         <div class="details-card-title">
                                             <h4>之前价格</h4>
-                                            <span class="price-badge old-price-badge">{{ change.old_price or 0 }} 积分</span>
+                                            <span class="price-badge old-price-badge">{{ change.old_price or 0 }} {{ change.old_unit }}/{{ change.old_per }}</span>
                                         </div>
                                         <ul class="bot-details-list">
                                             <li>
                                                 <span class="detail-label">标准消息:</span>
-                                                <span class="detail-value {% if (change.old_standard_message or 0) != (change.new_standard_message or 0) %}diff-highlight {% if (change.old_standard_message or 0) < (change.new_standard_message or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.old_standard_message if change.old_standard_message is not none else change.old_price }} 积分
+                                                <span class="detail-value {% if (change.old_price|float or 0) != (change.new_price|float or 0) %}diff-highlight {% if (change.old_price|float or 0) < (change.new_price|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_price or 0 }} {{ change.old_unit }}/{{ change.old_per }}
                                                 </span>
                                             </li>
-                                            {% if (change.old_text_input or 0) > 0 %}
+                                            {% if (change.old_text_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">文本输入:</span>
-                                                <span class="detail-value {% if (change.old_text_input or 0) != (change.new_text_input or 0) %}diff-highlight {% if (change.old_text_input or 0) < (change.new_text_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.old_text_input }} 积分
+                                                <span class="detail-value {% if (change.old_text_input|float or 0) != (change.new_text_input|float or 0) %}diff-highlight {% if (change.old_text_input|float or 0) < (change.new_text_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_text_input }} {{ change.old_text_input_unit }}/{{ change.old_text_input_per }}
                                                 </span>
                                             </li>
                                             {% endif %}
-                                            {% if (change.old_image_input or 0) > 0 %}
+                                            {% if (change.old_image_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">图片输入:</span>
-                                                <span class="detail-value {% if (change.old_image_input or 0) != (change.new_image_input or 0) %}diff-highlight {% if (change.old_image_input or 0) < (change.new_image_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.old_image_input }} 积分
+                                                <span class="detail-value {% if (change.old_image_input|float or 0) != (change.new_image_input|float or 0) %}diff-highlight {% if (change.old_image_input|float or 0) < (change.new_image_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_image_input }} {{ change.old_image_input_unit }}/{{ change.old_image_input_per }}
                                                 </span>
                                             </li>
                                             {% endif %}
-                                            {% if (change.old_cache_input or 0) > 0 %}
+                                            {% if (change.old_cache_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">缓存输入:</span>
-                                                <span class="detail-value {% if (change.old_cache_input or 0) != (change.new_cache_input or 0) %}diff-highlight {% if (change.old_cache_input or 0) < (change.new_cache_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.old_cache_input }} 积分
+                                                <span class="detail-value {% if (change.old_cache_input|float or 0) != (change.new_cache_input|float or 0) %}diff-highlight {% if (change.old_cache_input|float or 0) < (change.new_cache_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_cache_input }} {{ change.old_cache_input_unit }}/{{ change.old_cache_input_per }}
                                                 </span>
                                             </li>
                                             {% endif %}
-                                            {% if (change.old_output or 0) > 0 %}
+                                            {% if (change.old_output|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">输出:</span>
-                                                <span class="detail-value {% if (change.old_output or 0) != (change.new_output or 0) %}diff-highlight {% if (change.old_output or 0) < (change.new_output or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.old_output }} 积分
+                                                <span class="detail-value {% if (change.old_output|float or 0) != (change.new_output|float or 0) %}diff-highlight {% if (change.old_output|float or 0) < (change.new_output|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.old_output }} {{ change.old_output_unit }}/{{ change.old_output_per }}
                                                 </span>
                                             </li>
                                             {% endif %}
@@ -1153,44 +1151,44 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                     <div class="details-card details-card-new">
                                         <div class="details-card-title">
                                             <h4>当前价格</h4>
-                                            <span class="price-badge new-price-badge">{{ change.new_price or 0 }} 积分</span>
+                                            <span class="price-badge new-price-badge">{{ change.new_price or 0 }} {{ change.new_unit }}/{{ change.new_per }}</span>
                                         </div>
                                         <ul class="bot-details-list">
                                             <li>
                                                 <span class="detail-label">标准消息:</span>
-                                                <span class="detail-value {% if (change.old_standard_message or 0) != (change.new_standard_message or 0) %}diff-highlight {% if (change.old_standard_message or 0) < (change.new_standard_message or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.new_standard_message if change.new_standard_message is not none else change.new_price }} 积分
+                                                <span class="detail-value {% if (change.old_price|float or 0) != (change.new_price|float or 0) %}diff-highlight {% if (change.old_price|float or 0) < (change.new_price|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_price or 0 }} {{ change.new_unit }}/{{ change.new_per }}
                                                 </span>
                                             </li>
-                                            {% if (change.new_text_input or 0) > 0 %}
+                                            {% if (change.new_text_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">文本输入:</span>
-                                                <span class="detail-value {% if (change.old_text_input or 0) != (change.new_text_input or 0) %}diff-highlight {% if (change.old_text_input or 0) < (change.new_text_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.new_text_input }} 积分
+                                                <span class="detail-value {% if (change.old_text_input|float or 0) != (change.new_text_input|float or 0) %}diff-highlight {% if (change.old_text_input|float or 0) < (change.new_text_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_text_input }} {{ change.new_text_input_unit }}/{{ change.new_text_input_per }}
                                                 </span>
                                             </li>
                                             {% endif %}
-                                            {% if (change.new_image_input or 0) > 0 %}
+                                            {% if (change.new_image_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">图片输入:</span>
-                                                <span class="detail-value {% if (change.old_image_input or 0) != (change.new_image_input or 0) %}diff-highlight {% if (change.old_image_input or 0) < (change.new_image_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.new_image_input }} 积分
+                                                <span class="detail-value {% if (change.old_image_input|float or 0) != (change.new_image_input|float or 0) %}diff-highlight {% if (change.old_image_input|float or 0) < (change.new_image_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_image_input }} {{ change.new_image_input_unit }}/{{ change.new_image_input_per }}
                                                 </span>
                                             </li>
                                             {% endif %}
-                                            {% if (change.new_cache_input or 0) > 0 %}
+                                            {% if (change.new_cache_input|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">缓存输入:</span>
-                                                <span class="detail-value {% if (change.old_cache_input or 0) != (change.new_cache_input or 0) %}diff-highlight {% if (change.old_cache_input or 0) < (change.new_cache_input or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.new_cache_input }} 积分
+                                                <span class="detail-value {% if (change.old_cache_input|float or 0) != (change.new_cache_input|float or 0) %}diff-highlight {% if (change.old_cache_input|float or 0) < (change.new_cache_input|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_cache_input }} {{ change.new_cache_input_unit }}/{{ change.new_cache_input_per }}
                                                 </span>
                                             </li>
                                             {% endif %}
-                                            {% if (change.new_output or 0) > 0 %}
+                                            {% if (change.new_output|float or 0) > 0 %}
                                             <li>
                                                 <span class="detail-label">输出:</span>
-                                                <span class="detail-value {% if (change.old_output or 0) != (change.new_output or 0) %}diff-highlight {% if (change.old_output or 0) < (change.new_output or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
-                                                    {{ change.new_output }} 积分
+                                                <span class="detail-value {% if (change.old_output|float or 0) != (change.new_output|float or 0) %}diff-highlight {% if (change.old_output|float or 0) < (change.new_output|float or 0) %}increase{% else %}decrease{% endif %}{% endif %}">
+                                                    {{ change.new_output }} {{ change.new_output_unit }}/{{ change.new_output_per }}
                                                 </span>
                                             </li>
                                             {% endif %}
@@ -1297,11 +1295,14 @@ def generate_timeline_data():
     # Find new bots (in today's data but not in previous data)
     for bot_id in today_bot_ids - previous_bot_ids:
         bot = today_data[bot_id]
+        price_info = get_price_info(bot)
         new_bots.append({
             "id": bot.get("bot_ID", ""),
             "handle": bot.get("handle", ""),
             "name": bot.get("display_name", "Unknown Bot"),
-            "price": get_bot_price(bot)
+            "price": price_info["value"],
+            "unit": price_info["unit"],
+            "per": price_info["per"]
         })
 
     # Check price changes for existing bots
@@ -1309,27 +1310,40 @@ def generate_timeline_data():
         today_bot = today_data[bot_id]
         previous_bot = previous_data[bot_id]
 
-        today_price = get_bot_price(today_bot)
-        previous_price = get_bot_price(previous_bot)
+        today_price_info = get_price_info(today_bot)
+        previous_price_info = get_price_info(previous_bot)
+
+        today_price = today_price_info["value"]
+        previous_price = previous_price_info["value"]
 
         if today_price != previous_price:
+            # Get component-specific price information
+            components = ["text_input", "image_input", "cache_input", "output", "standard_message"]
+            component_price_info = {}
+
+            for component in components:
+                today_component = get_component_price_info(today_bot, component)
+                previous_component = get_component_price_info(previous_bot, component)
+
+                component_price_info[f"new_{component}"] = today_component["value"]
+                component_price_info[f"new_{component}_unit"] = today_component["unit"]
+                component_price_info[f"new_{component}_per"] = today_component["per"]
+
+                component_price_info[f"old_{component}"] = previous_component["value"]
+                component_price_info[f"old_{component}_unit"] = previous_component["unit"]
+                component_price_info[f"old_{component}_per"] = previous_component["per"]
+
             price_changes.append({
                 "id": today_bot.get("bot_ID", ""),
                 "handle": today_bot.get("handle", ""),
                 "name": today_bot.get("display_name", "Unknown Bot"),
-                "old_price": previous_price,
-                "new_price": today_price,
-                # Add detailed pricing information if available
-                "old_text_input": get_bot_price_component(previous_bot, "text_input"),
-                "new_text_input": get_bot_price_component(today_bot, "text_input"),
-                "old_image_input": get_bot_price_component(previous_bot, "image_input"),
-                "new_image_input": get_bot_price_component(today_bot, "image_input"),
-                "old_cache_input": get_bot_price_component(previous_bot, "cache_input"),
-                "new_cache_input": get_bot_price_component(today_bot, "cache_input"),
-                "old_output": get_bot_price_component(previous_bot, "output"),
-                "new_output": get_bot_price_component(today_bot, "output"),
-                "old_standard_message": get_bot_price_component(previous_bot, "standard_message"),
-                "new_standard_message": get_bot_price_component(today_bot, "standard_message")
+                "old_price": previous_price_info["value"],
+                "old_unit": previous_price_info["unit"],
+                "old_per": previous_price_info["per"],
+                "new_price": today_price_info["value"],
+                "new_unit": today_price_info["unit"],
+                "new_per": today_price_info["per"],
+                **component_price_info
             })
 
     # Add to timeline data if there are changes
@@ -1354,6 +1368,160 @@ def generate_timeline_data():
         logger.info("No changes detected for timeline")
 
     return timeline_data
+
+def get_price_info(bot):
+    """Get price value, unit and per information from bot data"""
+    try:
+        # Default values - 使用完整的字符串作为默认值
+        price_info = {"value": 0, "unit": "积分", "per": "1k Tokens"}
+
+        # Try direct price field
+        if "price" in bot and isinstance(bot["price"], (int, float)):
+            price_info["value"] = bot["price"]
+
+        # Try points_price structure
+        elif "points_price" in bot and isinstance(bot["points_price"], dict):
+            # Try standard_message
+            if "standard_message" in bot["points_price"]:
+                standard_msg = bot["points_price"]["standard_message"]
+                if isinstance(standard_msg, dict):
+                    if "value" in standard_msg:
+                        price_info["value"] = standard_msg["value"]
+                    if "unit" in standard_msg:
+                        # 翻译单位
+                        if standard_msg["unit"] == "points":
+                            price_info["unit"] = "积分"
+                        else:
+                            price_info["unit"] = standard_msg["unit"] or "积分"
+                    if "per" in standard_msg:
+                        if isinstance(standard_msg["per"], dict) and "unit" in standard_msg["per"]:
+                            if standard_msg["per"]["unit"]:
+                                # 尝试翻译单位单位
+                                per_unit = standard_msg["per"]["unit"]
+                                if per_unit.lower() == "tokens":
+                                    per_unit = "Tokens"
+                                elif per_unit.lower() == "message":
+                                    per_unit = "信息"
+                                price_info["per"] = f"{standard_msg['per'].get('value', '1k')} {per_unit}"
+                        elif standard_msg["per"]:
+                            # 尝试翻译单位单位
+                            per_info = standard_msg["per"]
+                            if per_info.lower() == "message":
+                                price_info["per"] = "信息"
+                            elif "tokens" in per_info.lower():
+                                price_info["per"] = per_info.replace("tokens", "Tokens")
+                            else:
+                                price_info["per"] = per_info
+
+            # If pricing_type exists with non_subscriber field
+            elif "pricing_type" in bot["points_price"] and "non_subscriber" in bot["points_price"]:
+                text_output = bot["points_price"]["non_subscriber"].get("text_output", {})
+                if isinstance(text_output, dict):
+                    if "value" in text_output:
+                        price_info["value"] = text_output["value"]
+                    if "unit" in text_output:
+                        # 翻译单位
+                        if text_output["unit"] == "points":
+                            price_info["unit"] = "积分"
+                        else:
+                            price_info["unit"] = text_output["unit"] or "积分"
+                    if "per" in text_output:
+                        if isinstance(text_output["per"], dict) and "unit" in text_output["per"]:
+                            if text_output["per"]["unit"]:
+                                # 尝试翻译单位单位
+                                per_unit = text_output["per"]["unit"]
+                                if per_unit.lower() == "tokens":
+                                    per_unit = "Tokens"
+                                elif per_unit.lower() == "message":
+                                    per_unit = "信息"
+                                price_info["per"] = f"{text_output['per'].get('value', '1k')} {per_unit}"
+                        elif text_output["per"]:
+                            # 尝试翻译单位单位
+                            per_info = text_output["per"]
+                            if per_info.lower() == "message":
+                                price_info["per"] = "信息"
+                            elif "tokens" in per_info.lower():
+                                price_info["per"] = per_info.replace("tokens", "Tokens")
+                            else:
+                                price_info["per"] = per_info
+
+        # 确保单位和单位单位有值
+        if not price_info["unit"]:
+            price_info["unit"] = "积分"
+        if not price_info["per"]:
+            price_info["per"] = "1k Tokens"
+
+        return price_info
+    except Exception as e:
+        logger.warning(f"Error getting price info: {e}")
+        return {"value": 0, "unit": "积分", "per": "1k Tokens"}
+
+def get_component_price_info(bot, component_name):
+    """Get price information for a specific component"""
+    try:
+        # Default values
+        price_info = {"value": 0, "unit": "积分", "per": "1k Tokens"}
+
+        # If standard_message is requested and no points_price, use the bot price
+        if component_name == "standard_message" and ("points_price" not in bot or "standard_message" not in bot.get("points_price", {})):
+            return get_price_info(bot)
+
+        # Try points_price structure
+        if "points_price" in bot and isinstance(bot["points_price"], dict):
+            component = None
+
+            # Direct component
+            if component_name in bot["points_price"]:
+                component = bot["points_price"][component_name]
+
+            # Try inputs array for input components
+            elif "inputs" in bot["points_price"] and component_name.endswith("_input"):
+                input_type = component_name.replace("_input", "")
+                for input_item in bot["points_price"]["inputs"]:
+                    if input_item.get("type") == input_type:
+                        component = input_item
+                        break
+
+            # If component found, extract values
+            if component and isinstance(component, dict):
+                if "value" in component:
+                    price_info["value"] = component["value"]
+                if "unit" in component:
+                    # 翻译单位
+                    if component["unit"] == "points":
+                        price_info["unit"] = "积分"
+                    else:
+                        price_info["unit"] = component["unit"] or "积分"
+                if "per" in component:
+                    if isinstance(component["per"], dict) and "unit" in component["per"]:
+                        if component["per"].get("unit"):
+                            # 尝试翻译单位单位
+                            per_unit = component["per"]["unit"]
+                            if per_unit.lower() == "tokens":
+                                per_unit = "Tokens"
+                            elif per_unit.lower() == "message":
+                                per_unit = "信息"
+                            price_info["per"] = f"{component['per'].get('value', '1k')} {per_unit}"
+                    elif component["per"]:
+                        # 尝试翻译单位单位
+                        per_info = component["per"]
+                        if per_info.lower() == "message":
+                            price_info["per"] = "信息"
+                        elif "tokens" in per_info.lower():
+                            price_info["per"] = per_info.replace("tokens", "Tokens")
+                        else:
+                            price_info["per"] = per_info
+
+        # 确保单位和单位单位有值
+        if not price_info["unit"]:
+            price_info["unit"] = "积分"
+        if not price_info["per"]:
+            price_info["per"] = "1k Tokens"
+
+        return price_info
+    except Exception as e:
+        logger.warning(f"Error getting component price info: {e}")
+        return {"value": 0, "unit": "积分", "per": "1k Tokens"}
 
 def get_bot_price_component(bot, component_name):
     """Extract specific pricing component from bot data"""

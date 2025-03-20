@@ -76,15 +76,23 @@ def main():
         # Generate timeline HTML if the module is available
         if has_timeline_generator:
             # Generate timeline data and HTML directly with our new function
-            timeline_html_path = generate_timeline_html()
+            logger.info("Generating timeline data and HTML...")
+            timeline_data = generate_timeline_data()
+            # Always generate timeline HTML, even if there are no changes
+            timeline_html_path = generate_timeline_html(timeline_data)
             if timeline_html_path:
                 logger.info(f"Generated timeline HTML at {timeline_html_path}")
 
-                # Update timeline.html with latest timeline content
+                # Always update timeline.html with latest timeline content
                 timeline_index_path = update_timeline_index()
                 logger.info(f"Updated timeline.html at {timeline_index_path}")
             else:
-                logger.info("No timeline data generated")
+                # If no timeline_html_path was returned, force creation of a new one
+                logger.info("No timeline data generated, creating empty timeline...")
+                empty_timeline_data = {CURRENT_DATE: {"new_bots": [], "price_changes": []}}
+                timeline_html_path = generate_timeline_html(empty_timeline_data)
+                timeline_index_path = update_timeline_index()
+                logger.info(f"Generated empty timeline HTML at {timeline_html_path}")
 
         # Clean old files (keeping the last 7 days by default)
         for directory in [JSON_DIR, BOT_INFO_DIR, TIMELINE_DIR]:

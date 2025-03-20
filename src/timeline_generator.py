@@ -1095,7 +1095,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                                 <a href="https://poe.com/{{ change.handle }}" target="_blank" class="bot-link">{{ change.name }}</a>
                                 <span class="price-change-text">
                                     标准消息: <span class="{% if (change.old_standard_message or 0) < (change.new_standard_message or 0) %}price-increase{% else %}price-decrease{% endif %}">
-                                        {{ change.old_standard_message or 0 }} 积分/message → {{ change.new_standard_message or 0 }} 积分/message
+                                        {{ change.old_standard_message or 0 }} 积分/信息 → {{ change.new_standard_message or 0 }} 积分/信息
                                     </span>
                                 </span>
                                 <button class="toggle-details" onclick="toggleDetails(this)">

@@ -1214,7 +1214,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
     <footer>
         <div class="container">
-            <p>© 2023-2024 <a href="https://github.com/Yidadaa/Poe-Bot-Crawler" target="_blank">Poe Bot Crawler</a>. 数据来源于 <a href="https://poe.com" target="_blank">Poe.com</a>.</p>
+            <p>© 2025 <a href="https://github.com/Yidadaa/Poe-Bot-Crawler" target="_blank">Poe Bot Crawler</a>. 数据来源于 <a href="https://poe.com" target="_blank">Poe.com</a>.</p>
         </div>
     </footer>
 
@@ -1256,45 +1256,64 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
 def generate_timeline_data():
     """
-    Generate timeline data by comparing current and previous bot data
+    Generate timeline data by comparing all historical bot data files
 
     Returns:
-        Dictionary with timeline data or None if no changes
+        Dictionary with complete timeline data
     """
     from src.utils import JSON_DIR, load_json, CURRENT_DATE
-
-    # Path to today's and previous day's data files
-    today_file = JSON_DIR / f"official_bots_with_prices_{CURRENT_DATE}.json"
-
-    # Find the previous day's file
-    json_files = list(JSON_DIR.glob("official_bots_with_prices_*.json"))
-    previous_files = [f for f in json_files if CURRENT_DATE not in f.name]
-
-    if not previous_files:
-        logger.warning("No previous data files found")
-        return None
-
-    # Sort by modification time (newest first)
-    previous_file = max(previous_files, key=lambda f: f.stat().st_mtime)
-
-    # Load data
-    today_data = load_json(today_file)
-    previous_data = load_json(previous_file)
+    import re
 
     # Initialize timeline data
     timeline_data = {}
 
-    # Find new bots and price changes
+    # Find all bot data files
+    json_files = list(JSON_DIR.glob("official_bots_with_prices_*.json"))
+
+    if not json_files:
+        logger.warning("No bot data files found")
+        return None
+
+    # Sort files by date in filename (newest first)
+    pattern = re.compile(r'official_bots_with_prices_(\d{4}-\d{2}-\d{2})\.json')
+
+    def extract_date(filepath):
+        match = pattern.search(filepath.name)
+        if match:
+            return match.group(1)
+        return ""
+
+    json_files.sort(key=extract_date, reverse=True)
+
+    # Get the list of dates from filenames
+    dates = [extract_date(f) for f in json_files]
+    dates = [d for d in dates if d]  # Remove empty strings
+
+    if not dates:
+        logger.warning("No valid date patterns found in filenames")
+        return None
+
+    # Load all data files into a dictionary keyed by date
+    all_data = {}
+    for file in json_files:
+        date = extract_date(file)
+        if date:
+            try:
+                all_data[date] = load_json(file)
+                logger.info(f"Loaded data for {date}")
+            except Exception as e:
+                logger.error(f"Error loading data for {date}: {e}")
+
+    # Process each date in chronological order (oldest to newest)
+    sorted_dates = sorted(all_data.keys())
+
+    # For the first date, all bots are considered "new"
+    first_date = sorted_dates[0]
+    first_data = all_data[first_date]
+
+    # All bots in the first file are "new"
     new_bots = []
-    price_changes = []
-
-    # Create sets of bot IDs for quick comparison
-    today_bot_ids = set(today_data.keys())
-    previous_bot_ids = set(previous_data.keys())
-
-    # Find new bots (in today's data but not in previous data)
-    for bot_id in today_bot_ids - previous_bot_ids:
-        bot = today_data[bot_id]
+    for bot_id, bot in first_data.items():
         price_info = get_price_info(bot)
         new_bots.append({
             "id": bot.get("bot_ID", ""),
@@ -1305,67 +1324,127 @@ def generate_timeline_data():
             "per": price_info["per"]
         })
 
-    # Check price changes for existing bots
-    for bot_id in today_bot_ids.intersection(previous_bot_ids):
-        today_bot = today_data[bot_id]
-        previous_bot = previous_data[bot_id]
+    # Add first date's new bots to timeline
+    timeline_data[first_date] = {
+        "new_bots": new_bots,
+        "price_changes": []
+    }
 
-        today_price_info = get_price_info(today_bot)
-        previous_price_info = get_price_info(previous_bot)
+    # For each subsequent date, compare with the previous date
+    for i in range(1, len(sorted_dates)):
+        current_date = sorted_dates[i]
+        previous_date = sorted_dates[i-1]
 
-        today_price = today_price_info["value"]
-        previous_price = previous_price_info["value"]
+        current_data = all_data[current_date]
+        previous_data = all_data[previous_date]
 
-        if today_price != previous_price:
-            # Get component-specific price information
-            components = ["text_input", "image_input", "cache_input", "output", "standard_message"]
-            component_price_info = {}
+        # Find new bots and price changes
+        new_bots = []
+        price_changes = []
 
-            for component in components:
-                today_component = get_component_price_info(today_bot, component)
-                previous_component = get_component_price_info(previous_bot, component)
+        # Create bot ID dictionaries for more precise comparison
+        current_bot_ids = {}
+        previous_bot_ids = {}
 
-                component_price_info[f"new_{component}"] = today_component["value"]
-                component_price_info[f"new_{component}_unit"] = today_component["unit"]
-                component_price_info[f"new_{component}_per"] = today_component["per"]
+        # Build dictionaries with bot_ID as keys for precise tracking
+        for key, bot in current_data.items():
+            if "bot_ID" in bot:
+                current_bot_ids[str(bot["bot_ID"])] = bot
+            else:
+                current_bot_ids[key] = bot
 
-                component_price_info[f"old_{component}"] = previous_component["value"]
-                component_price_info[f"old_{component}_unit"] = previous_component["unit"]
-                component_price_info[f"old_{component}_per"] = previous_component["per"]
+        for key, bot in previous_data.items():
+            if "bot_ID" in bot:
+                previous_bot_ids[str(bot["bot_ID"])] = bot
+            else:
+                previous_bot_ids[key] = bot
 
-            price_changes.append({
-                "id": today_bot.get("bot_ID", ""),
-                "handle": today_bot.get("handle", ""),
-                "name": today_bot.get("display_name", "Unknown Bot"),
-                "old_price": previous_price_info["value"],
-                "old_unit": previous_price_info["unit"],
-                "old_per": previous_price_info["per"],
-                "new_price": today_price_info["value"],
-                "new_unit": today_price_info["unit"],
-                "new_per": today_price_info["per"],
-                **component_price_info
-            })
+        # Find new bots (in current date but not in previous date)
+        for bot_id, bot in current_bot_ids.items():
+            if bot_id not in previous_bot_ids:
+                price_info = get_price_info(bot)
+                new_bots.append({
+                    "id": bot.get("bot_ID", ""),
+                    "handle": bot.get("handle", ""),
+                    "name": bot.get("display_name", "Unknown Bot"),
+                    "price": price_info["value"],
+                    "unit": price_info["unit"],
+                    "per": price_info["per"]
+                })
+                logger.info(f"New bot on {current_date}: {bot.get('handle', 'Unknown')}")
 
-    # Add to timeline data if there are changes
-    if new_bots or price_changes:
-        timeline_data[CURRENT_DATE] = {
-            "new_bots": new_bots,
-            "price_changes": price_changes
-        }
+        # Check price changes for existing bots
+        for bot_id in set(current_bot_ids.keys()) & set(previous_bot_ids.keys()):
+            current_bot = current_bot_ids[bot_id]
+            previous_bot = previous_bot_ids[bot_id]
 
-        # Try to load existing timeline data and merge
-        timeline_file = JSON_DIR / "timeline_data.json"
-        if timeline_file.exists():
-            existing_timeline = load_json(timeline_file)
-            timeline_data.update(existing_timeline)
+            current_price_info = get_price_info(current_bot)
+            previous_price_info = get_price_info(previous_bot)
 
-        # Save the timeline data
-        with open(timeline_file, 'w', encoding='utf-8') as f:
-            json.dump(timeline_data, f, indent=2, ensure_ascii=False)
+            current_price = current_price_info["value"]
+            previous_price = previous_price_info["value"]
 
-        logger.info(f"Created timeline data with {len(new_bots)} new bots and {len(price_changes)} price changes")
-    else:
-        logger.info("No changes detected for timeline")
+            # If price or pricing terms changed
+            if (current_price != previous_price or
+                current_price_info["unit"] != previous_price_info["unit"] or
+                current_price_info["per"] != previous_price_info["per"]):
+
+                # Get component-specific price information
+                components = ["text_input", "image_input", "cache_input", "output", "standard_message"]
+                component_price_info = {}
+
+                for component in components:
+                    current_component = get_component_price_info(current_bot, component)
+                    previous_component = get_component_price_info(previous_bot, component)
+
+                    component_price_info[f"new_{component}"] = current_component["value"]
+                    component_price_info[f"new_{component}_unit"] = current_component["unit"]
+                    component_price_info[f"new_{component}_per"] = current_component["per"]
+
+                    component_price_info[f"old_{component}"] = previous_component["value"]
+                    component_price_info[f"old_{component}_unit"] = previous_component["unit"]
+                    component_price_info[f"old_{component}_per"] = previous_component["per"]
+
+                price_changes.append({
+                    "id": current_bot.get("bot_ID", ""),
+                    "handle": current_bot.get("handle", ""),
+                    "name": current_bot.get("display_name", "Unknown Bot"),
+                    "old_price": previous_price_info["value"],
+                    "old_unit": previous_price_info["unit"],
+                    "old_per": previous_price_info["per"],
+                    "new_price": current_price_info["value"],
+                    "new_unit": current_price_info["unit"],
+                    "new_per": current_price_info["per"],
+                    **component_price_info
+                })
+                logger.info(f"Price change on {current_date}: {current_bot.get('handle', 'Unknown')}")
+
+        # Add to timeline data if there are changes
+        if new_bots or price_changes:
+            timeline_data[current_date] = {
+                "new_bots": new_bots,
+                "price_changes": price_changes
+            }
+        else:
+            # Add empty entry to maintain date continuity
+            timeline_data[current_date] = {
+                "new_bots": [],
+                "price_changes": []
+            }
+
+    # Save the timeline data
+    timeline_file = JSON_DIR / "timeline_data.json"
+    with open(timeline_file, 'w', encoding='utf-8') as f:
+        json.dump(timeline_data, f, indent=2, ensure_ascii=False)
+
+    logger.info(f"Generated complete timeline data with {len(timeline_data)} days of history")
+
+    # Also save a dated copy for history
+    dated_filename = f"timeline_data_{CURRENT_DATE}.json"
+    dated_file = JSON_DIR / dated_filename
+    with open(dated_file, 'w', encoding='utf-8') as f:
+        json.dump(timeline_data, f, indent=2, ensure_ascii=False)
+    logger.info(f"Saved dated timeline data to {dated_file}")
 
     return timeline_data
 

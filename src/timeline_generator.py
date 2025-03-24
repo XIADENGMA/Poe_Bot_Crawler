@@ -32,36 +32,36 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             --secondary-color-rgb: 63, 55, 201;
             --accent-color: #4895ef;
             --accent-color-rgb: 72, 149, 239;
-            --text-color: #2d3748;
-            --text-color-rgb: 45, 55, 72;
-            --light-text: #4a5568;
-            --bg-color: #f8f9fa;
-            --bg-color-rgb: 248, 249, 250;
-            --card-bg: #fff;
-            --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-            --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            --header-bg: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-            --border-color: #e9ecef;
-            --border-color-rgb: 233, 236, 239;
-            --info-bg: #e7f5ff;
+            --text-color: #444444;
+            --text-color-rgb: 68, 68, 68;
+            --light-text: #666666;
+            --bg-color: #f0efe9;
+            --bg-color-rgb: 240, 239, 233;
+            --card-bg: #f7f6f1;
+            --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
+            --header-bg: linear-gradient(135deg, #5d76ef 0%, #4d49c9 100%);
+            --border-color: #e6e5de;
+            --border-color-rgb: 230, 229, 222;
+            --info-bg: #e9e8e2;
             --timeline-line: #4361ee;
             --timeline-dot: #4361ee;
-            --timeline-dot-border: #fff;
-            --timeline-card-bg: #fff;
+            --timeline-dot-border: #f0efe9;
+            --timeline-card-bg: #f7f6f1;
             --timeline-date: #3a0ca3;
-            --toggle-bg: #f1f1f1;
+            --toggle-bg: #e9e8e2;
             --toggle-dot: #4361ee;
-            --toggle-icon: #333;
-            --button-hover: #edf2ff;
-            --separator-color: #e9ecef;
-            --new-bot-bg: #e7f5ff;
+            --toggle-icon: #555555;
+            --button-hover: #e9e8e2;
+            --separator-color: #e6e5de;
+            --new-bot-bg: #e9e8e2;
             --price-change-bg: rgba(230, 230, 250, 0.3);
             --price-increase: #dc3545;
             --price-increase-rgb: 220, 53, 69;
             --price-decrease: #28a745;
             --price-decrease-rgb: 40, 167, 69;
-            --detail-label-color: #4a5568;
-            --detail-value-color: #2d3748;
+            --detail-label-color: #666666;
+            --detail-value-color: #444444;
         }
 
         /* Dark mode color scheme */
@@ -152,6 +152,8 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             color: var(--text-color);
             transition: all 0.3s ease;
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
@@ -198,7 +200,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             padding: 25px;
             border-radius: 16px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
             border: 1px solid var(--border-color);
             text-align: center;
             max-width: 900px;
@@ -379,11 +381,25 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             box-sizing: content-box;
             box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .timeline-item:hover::after {
             transform: scale(1.1);
             box-shadow: 0 0 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .timeline-item.collapsed::after {
+            background-color: var(--text-color);
+        }
+
+        .timeline-item.collapsed .timeline-content {
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+        .timeline-item.collapsed .timeline-changes {
+            display: none;
         }
 
         .timeline-left {
@@ -422,14 +438,27 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .timeline-date {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-weight: 700;
             color: var(--timeline-date);
             margin-bottom: 20px;
             font-size: 1.4rem;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
-            display: inline-block;
             letter-spacing: 0.5px;
+        }
+
+        .timeline-date::after {
+            content: '▼';
+            font-size: 0.7em;
+            transition: transform 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .timeline-item.collapsed .timeline-date::after {
+            transform: rotate(-90deg);
         }
 
         .timeline-changes {
@@ -481,10 +510,12 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
         .new-bot .price-change-summary {
             border-left: 4px solid var(--accent-color);
+            background-color: rgba(var(--accent-color-rgb), 0.03);
         }
 
         .price-change .price-change-summary {
             border-left: 4px solid var(--primary-color);
+            background-color: rgba(var(--primary-color-rgb), 0.03);
         }
 
         .price-change-summary::before {
@@ -511,7 +542,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
         .price-change-details {
             padding: 20px;
-            background-color: rgba(var(--bg-color-rgb), 0.5);
+            background-color: rgba(var(--bg-color-rgb), 0.7);
             margin-top: 0;
             border-top: none;
             animation: slideDown 0.3s ease-out;
@@ -609,19 +640,19 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
         }
 
         .diff-highlight.old {
-            background-color: rgba(220, 53, 69, 0.15);
+            background-color: rgba(220, 53, 69, 0.05);
             color: var(--price-increase);
             border-left: 3px solid var(--price-increase);
         }
 
         .diff-highlight.new {
-            background-color: rgba(40, 167, 69, 0.15);
+            background-color: rgba(40, 167, 69, 0.05);
             color: var(--price-decrease);
             border-left: 3px solid var(--price-decrease);
         }
 
         .diff-highlight.added {
-            background-color: rgba(255, 193, 7, 0.15);
+            background-color: rgba(255, 193, 7, 0.05);
             color: #ff9800;
             border-left: 3px solid #ff9800;
         }
@@ -822,85 +853,29 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             }
 
             .timeline::after {
-                left: 10px;
+                left: 20px;
             }
 
             .timeline-item {
-                width: 100%;
-                padding-left: 35px;
-                padding-right: 15px;
+                padding-left: 50px;
             }
 
             .timeline-item::after {
-                left: 0px;
-                width: 20px;
-                height: 20px;
+                left: 10px;
             }
 
             .timeline-content {
-                padding: 20px;
-            }
-
-            .timeline-date {
-                font-size: 1.2rem;
-                margin-bottom: 15px;
-            }
-
-            .details-cards {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .price-change-summary {
-                flex-wrap: wrap;
-                padding: 12px;
-            }
-
-            .price-comparison-summary {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .price-comparison-summary div:last-child {
-                margin-top: 8px;
-            }
-
-            .price-change-summary .bot-link {
-                width: 100%;
-                margin-bottom: 8px;
-            }
-
-            .price-change-text {
-                margin: 0 0 8px 0;
-                width: 100%;
-            }
-
-            .toggle-details {
-                margin-left: auto;
-                margin-right: 0;
-            }
-
-            .details-card-title {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .details-card-title .price-badge {
-                margin-left: 0;
-                margin-top: 8px;
-            }
-
-            .details-card {
                 padding: 15px;
             }
 
-            .bot-meta {
+            .price-change-summary {
                 flex-direction: column;
-                gap: 8px;
+                align-items: flex-start;
+                gap: 5px;
             }
 
-            .bot-info-card {
-                padding: 12px;
+            .toggle-details {
+                align-self: flex-end;
             }
         }
 
@@ -1014,6 +989,18 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--secondary-color);
+        }
+
+        .timeline-changes {
+            transition: max-height 0.5s ease-out, opacity 0.3s ease-out;
+            max-height: 2000px;
+            opacity: 1;
+            overflow: hidden;
+        }
+
+        .timeline-item.collapsed .timeline-changes {
+            max-height: 0;
+            opacity: 0;
         }
     </style>
 </head>
@@ -1258,6 +1245,81 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             } else {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有时间线项
+            const timelineItems = document.querySelectorAll('.timeline-item');
+
+            // 为每个时间线项添加点击处理
+            timelineItems.forEach(item => {
+                // 为每个时间线点创建点击区域
+                const clickArea = document.createElement('div');
+                clickArea.style.position = 'absolute';
+                clickArea.style.width = '30px';
+                clickArea.style.height = '30px';
+                clickArea.style.left = '48px';
+                clickArea.style.top = '20px';
+                clickArea.style.zIndex = '2';
+                clickArea.style.cursor = 'pointer';
+                clickArea.style.borderRadius = '50%';
+
+                // 适配移动端
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    clickArea.style.left = '5px';
+                }
+
+                // 点击处理函数
+                clickArea.addEventListener('click', function(event) {
+                    toggleTimelineItem(item);
+                    event.stopPropagation(); // 阻止事件冒泡
+                });
+
+                item.appendChild(clickArea);
+
+                // 同时让日期也可点击
+                const dateElement = item.querySelector('.timeline-date');
+                if (dateElement) {
+                    dateElement.style.cursor = 'pointer';
+                    dateElement.addEventListener('click', function() {
+                        toggleTimelineItem(item);
+                    });
+                }
+            });
+
+            // 恢复之前折叠的状态
+            const collapsedDates = JSON.parse(localStorage.getItem('collapsedDates') || '[]');
+            if (collapsedDates.length > 0) {
+                timelineItems.forEach(item => {
+                    const date = item.querySelector('.timeline-date').textContent.trim();
+                    if (collapsedDates.includes(date)) {
+                        item.classList.add('collapsed');
+                    }
+                });
+            }
+
+            // 统一的折叠处理函数
+            function toggleTimelineItem(item) {
+                item.classList.toggle('collapsed');
+
+                // 保存折叠状态到本地存储
+                const date = item.querySelector('.timeline-date').textContent.trim();
+                const collapsedDates = JSON.parse(localStorage.getItem('collapsedDates') || '[]');
+
+                if (item.classList.contains('collapsed')) {
+                    if (!collapsedDates.includes(date)) {
+                        collapsedDates.push(date);
+                    }
+                } else {
+                    const index = collapsedDates.indexOf(date);
+                    if (index !== -1) {
+                        collapsedDates.splice(index, 1);
+                    }
+                }
+
+                localStorage.setItem('collapsedDates', JSON.stringify(collapsedDates));
             }
         });
 

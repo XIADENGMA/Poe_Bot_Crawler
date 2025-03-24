@@ -1734,10 +1734,24 @@ def generate_timeline_html(timeline_data=None):
                 logger.error(f"Error loading timeline data: {e}")
                 timeline_data = {}
 
+    # 移除第一天的数据（不显示在页面上）
+    if timeline_data:
+        # 按日期排序找到第一天
+        sorted_dates = sorted(timeline_data.keys())
+        if sorted_dates:
+            # 从数据中移除第一天
+            first_day = sorted_dates[0]
+            logger.info(f"Removing first day ({first_day}) from timeline HTML display")
+            filtered_timeline_data = {k: v for k, v in timeline_data.items() if k != first_day}
+        else:
+            filtered_timeline_data = timeline_data
+    else:
+        filtered_timeline_data = {}
+
     # Render HTML template
     template = Template(TIMELINE_HTML_TEMPLATE)
     html_content = template.render(
-        timeline_data=timeline_data,  # 传递完整的时间线数据
+        timeline_data=filtered_timeline_data,  # 传递过滤后的时间线数据
         date=CURRENT_DATE
     )
 

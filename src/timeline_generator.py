@@ -1325,45 +1325,17 @@ def generate_timeline_data():
     # Process each date in chronological order (oldest to newest)
     sorted_dates = sorted(all_data.keys())
 
-    # For the first date, all bots are considered "new"
+    # Skip adding the first day's bots as "new" since we have no previous day to compare with
+    # This prevents incorrectly marking all bots as new on the first day
     first_date = sorted_dates[0]
-    first_data = all_data[first_date]
 
-    # All bots in the first file are "new"
-    new_bots = []
-    for bot_id, bot in first_data.items():
-        price_info = get_price_info(bot)
-
-        # Get component-specific price information
-        components = ["text_input", "image_input", "cache_input", "output", "standard_message"]
-        component_price_info = {}
-
-        for component in components:
-            component_info = get_component_price_info(bot, component)
-            component_price_info[component] = component_info["value"]
-            component_price_info[f"{component}_unit"] = component_info["unit"]
-            component_price_info[f"{component}_per"] = component_info["per"]
-
-        new_bot_data = {
-            "id": bot.get("bot_ID", ""),
-            "handle": bot.get("handle", ""),
-            "name": bot.get("display_name", "Unknown Bot"),
-            "price": price_info["value"],
-            "unit": price_info["unit"],
-            "per": price_info["per"]
-        }
-
-        # Add component-specific price information
-        new_bot_data.update(component_price_info)
-
-        new_bots.append(new_bot_data)
-        logger.info(f"New bot on {first_date}: {bot.get('handle', 'Unknown')}")
-
-    # Add first date's new bots to timeline
+    # Initialize timeline_data with empty first day to maintain chronological structure
     timeline_data[first_date] = {
-        "new_bots": new_bots,
+        "new_bots": [],
         "price_changes": []
     }
+
+    logger.info(f"Skipping first day ({first_date}) bot comparison as there's no previous data to compare with")
 
     # For each subsequent date, compare with the previous date
     for i in range(1, len(sorted_dates)):
@@ -1482,7 +1454,7 @@ def generate_timeline_data():
     with open(timeline_file, 'w', encoding='utf-8') as f:
         json.dump(timeline_data, f, indent=2, ensure_ascii=False)
 
-    logger.info(f"Generated complete timeline data with {len(timeline_data)} days of history")
+    logger.info(f"Generated complete timeline data with {len(timeline_data)-1} days of actual comparison data (skipping first day)")
 
     # Also save a dated copy for history
     dated_filename = f"timeline_data_{CURRENT_DATE}.json"

@@ -1476,12 +1476,6 @@ def generate_timeline_data():
                 "new_bots": new_bots,
                 "price_changes": price_changes
             }
-        else:
-            # Add empty entry to maintain date continuity
-            timeline_data[current_date] = {
-                "new_bots": [],
-                "price_changes": []
-            }
 
     # Save the timeline data
     timeline_file = JSON_DIR / "timeline_data.json"

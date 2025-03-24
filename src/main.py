@@ -87,12 +87,11 @@ def main():
                 timeline_index_path = update_timeline_index()
                 logger.info(f"Updated timeline.html at {timeline_index_path}")
             else:
-                # If no timeline_html_path was returned, force creation of a new one
-                logger.info("No timeline data generated, creating empty timeline...")
-                empty_timeline_data = {CURRENT_DATE: {"new_bots": [], "price_changes": []}}
-                timeline_html_path = generate_timeline_html(empty_timeline_data)
+                # If no timeline_html_path was returned, generate a timeline but don't add current date if empty
+                logger.info("No timeline data generated, creating timeline without current date...")
+                timeline_html_path = generate_timeline_html({})
                 timeline_index_path = update_timeline_index()
-                logger.info(f"Generated empty timeline HTML at {timeline_html_path}")
+                logger.info(f"Generated timeline HTML at {timeline_html_path}")
 
         # Clean old files (keeping the last 7 days by default)
         for directory in [JSON_DIR, BOT_INFO_DIR, TIMELINE_DIR]:

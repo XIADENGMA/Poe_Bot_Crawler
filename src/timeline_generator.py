@@ -351,14 +351,14 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             background-color: var(--timeline-line);
             top: 0;
             bottom: 0;
-            left: 98px;
+            left: 65px;
             border-radius: 2px;
             z-index: 0;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .timeline-item {
-            padding: 10px 40px 10px 140px;
+            padding: 10px 40px 10px 100px;
             position: relative;
             width: 100%;
             box-sizing: border-box;
@@ -374,7 +374,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             border: 4px solid var(--timeline-dot-border);
             border-radius: 50%;
             top: 25px;
-            left: 86px;
+            left: 53px;
             z-index: 1;
             box-sizing: content-box;
             box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
@@ -822,17 +822,17 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             }
 
             .timeline::after {
-                left: 31px;
+                left: 10px;
             }
 
             .timeline-item {
                 width: 100%;
-                padding-left: 70px;
+                padding-left: 35px;
                 padding-right: 15px;
             }
 
             .timeline-item::after {
-                left: 21px;
+                left: 0px;
                 width: 20px;
                 height: 20px;
             }
@@ -919,7 +919,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             }
 
             .timeline-item {
-                padding-left: 60px;
+                padding-left: 30px;
                 padding-right: 10px;
             }
 

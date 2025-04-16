@@ -1,0 +1,90 @@
+{
+  "data": {
+    "botById": {
+      "botPricing": {
+        "rateMenuMarkdown": "# 🎥 Video Processing Costs\n\nVideos under 1 minute are **FREE**! For longer videos:\n\n| Service | Cost per Minute |\n|---------|----------------|\n| Visual Analysis | 1100 points |\n| Audio Analysis | 277 points |\n| Storage | 50 points |\n\n# 💬 Question Costs\n\nEach question about your video has two components:\n\n| Component | Cost per 1000 Tokens |\n|-----------|------------------|\n| Your Question | 34 points |\n| AI Response | 67 points |\n\n💡 **Tips to Save Points:**\n1. Upload shorter videos (under 1 minute is free!)\n2. Ask concise questions\n3. Use commands like 'summary', 'chapters' or 'highlights' for efficient overviews",
+        "botPricingType": "undefined",
+        "standardMessagePrice": null
+      },
+      "deletionState": "not_deleted",
+      "displayName": "TwelveLabs",
+      "picture": {
+        "__typename": "URLBotImage",
+        "__isBotPicture": "URLBotImage",
+        "url": "https://qph.cf2.poecdn.net/main-thumb-pb-5518524-200-sutbmtzhvikalrlkywqxuakmxgnqgedu.jpeg"
+      },
+      "botId": 5518524,
+      "nickname": "twelvelabs",
+      "messagePointLimit": {
+        "numRemainingMessages": null,
+        "id": "TWVzc2FnZVBvaW50TGltaXQ6NTUxODUyNA=="
+      },
+      "isPrivateBot": false,
+      "viewerIsCreator": false,
+      "creator": {
+        "isDeleted": false,
+        "profilePhotoUrl": "https://qph.cf2.poecdn.net/main-thumb-2823826108-50-mnnfxcyajsozzrqzxsakffkxeguzjdif.jpeg",
+        "fullName": "TwelveLabsAI",
+        "nullableHandle": "twelvelabsai",
+        "__isNode": "PoeUser",
+        "id": "UG9lVXNlcjoyODIzODI2MTA4"
+      },
+      "canUserAccessBot": true,
+      "__isNode": "Bot",
+      "id": "Qm90OjU1MTg1MjQ="
+    },
+    "viewer": {
+      "subscription": {
+        "subscriptionProduct": {
+          "paidSubscriptionPeriod": null,
+          "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMDA="
+        },
+        "id": "U3Vic2NyaXB0aW9uOjA=",
+        "yearlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Nw=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDox"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1MQ=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Mg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1OA=="
+          }
+        ],
+        "monthlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoz"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo2"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMw=="
+          }
+        ]
+      },
+      "messagePointInfo": {
+        "messagePointBalance": 3000,
+        "id": "TWVzc2FnZVBvaW50SW5mbzow"
+      },
+      "isEligibleForWebSubscriptions": false,
+      "isPrivateDeletedBotsChangesEnabled": true,
+      "id": "Vmlld2VyOjA="
+    }
+  },
+  "extensions": {
+    "hi": "bye"
+  }
+}

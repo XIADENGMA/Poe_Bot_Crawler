@@ -1,0 +1,90 @@
+{
+  "data": {
+    "botById": {
+      "botPricing": {
+        "rateMenuMarkdown": "Message cost is variable, based on input tokens, and output size/resolution and quality. [Learn more.](https://help.poe.com/hc/en-us/articles/19944206309524-Poe-FAQs#h_01HCFXCW5CB1DSH6F4WXXYHJFJ)\n\n| Type | Rate |\n| ------ | ------ |\n| Input (text)   | 417 points/1k tokens|\n| Input (images) | 834 points/1k tokens|\n| Output (image) | Based on output image quality and resolution &#10; (see table below)|\n\n**Output Image Rates**\n| Size / &#10; Quality | 1:1 &#10; (1024x1024) | 3:2 &#10; (1536x1024) | 2:3 &#10; (1024x1536)|\n| :-- | :--:|:--:|:--:|\n| low |907 points|1334 points|1360 points|\n| medium |3520 points|5227 points|5280 points|\n| high |13867 points|20694 points|20800 points|",
+        "botPricingType": "undefined",
+        "standardMessagePrice": null
+      },
+      "deletionState": "not_deleted",
+      "displayName": "GPT-Image-1",
+      "picture": {
+        "__typename": "URLBotImage",
+        "__isBotPicture": "URLBotImage",
+        "url": "https://qph.cf2.poecdn.net/main-thumb-pb-5860961-200-ryckyjvnrnsexadryztninstecjnonwt.jpeg"
+      },
+      "botId": 5860961,
+      "nickname": "gptimage1",
+      "messagePointLimit": {
+        "numRemainingMessages": null,
+        "id": "TWVzc2FnZVBvaW50TGltaXQ6NTg2MDk2MQ=="
+      },
+      "isPrivateBot": false,
+      "viewerIsCreator": false,
+      "creator": {
+        "isDeleted": false,
+        "profilePhotoUrl": "https://qph.cf2.poecdn.net/main-thumb-2910400879-50-wrfgcbmfjrhquvwlxvypitmawpovrxoi.jpeg",
+        "fullName": "OpenAI",
+        "nullableHandle": "openai",
+        "__isNode": "PoeUser",
+        "id": "UG9lVXNlcjoyOTEwNDAwODc5"
+      },
+      "canUserAccessBot": true,
+      "__isNode": "Bot",
+      "id": "Qm90OjU4NjA5NjE="
+    },
+    "viewer": {
+      "subscription": {
+        "subscriptionProduct": {
+          "paidSubscriptionPeriod": null,
+          "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMDA="
+        },
+        "id": "U3Vic2NyaXB0aW9uOjA=",
+        "yearlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Nw=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDox"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1MQ=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Mg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1OA=="
+          }
+        ],
+        "monthlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoz"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo2"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMw=="
+          }
+        ]
+      },
+      "messagePointInfo": {
+        "messagePointBalance": 3000,
+        "id": "TWVzc2FnZVBvaW50SW5mbzow"
+      },
+      "isEligibleForWebSubscriptions": false,
+      "isPrivateDeletedBotsChangesEnabled": true,
+      "id": "Vmlld2VyOjA="
+    }
+  },
+  "extensions": {
+    "hi": "bye"
+  }
+}

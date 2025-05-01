@@ -1,0 +1,90 @@
+{
+  "data": {
+    "botById": {
+      "botPricing": {
+        "rateMenuMarkdown": "Message cost is variable, so longer messages are more expensive than shorter messages. \n\n| Type | Rate |\n|------|------|\n| Input (text) | 4 points/1k tokens |\n| Input (image) | Variable |\n| Bot message | 6 points/message |\n| Chat history | Input rates are applied |\n",
+        "botPricingType": "variable",
+        "standardMessagePrice": 7
+      },
+      "deletionState": "not_deleted",
+      "displayName": "Mistral-Small-3",
+      "picture": {
+        "__typename": "URLBotImage",
+        "__isBotPicture": "URLBotImage",
+        "url": "https://qph.cf2.poecdn.net/main-thumb-pb-7012-200-oelvcswpytpieygsqdymsppwvpwoqdob.jpeg"
+      },
+      "botId": 7012,
+      "nickname": "mistral_small",
+      "messagePointLimit": {
+        "numRemainingMessages": 88,
+        "id": "TWVzc2FnZVBvaW50TGltaXQ6NzAxMg=="
+      },
+      "isPrivateBot": false,
+      "viewerIsCreator": false,
+      "creator": {
+        "isDeleted": false,
+        "profilePhotoUrl": "https://qph.cf2.poecdn.net/main-thumb-2910404805-50-ygwijasruuxueejozjixjoulatzersfe.jpeg",
+        "fullName": "Mistral",
+        "nullableHandle": "mistral",
+        "__isNode": "PoeUser",
+        "id": "UG9lVXNlcjoyOTEwNDA0ODA1"
+      },
+      "canUserAccessBot": true,
+      "__isNode": "Bot",
+      "id": "Qm90OjcwMTI="
+    },
+    "viewer": {
+      "subscription": {
+        "subscriptionProduct": {
+          "paidSubscriptionPeriod": null,
+          "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMDA="
+        },
+        "id": "U3Vic2NyaXB0aW9uOjA=",
+        "yearlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Nw=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDox"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1MQ=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Mg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1OA=="
+          }
+        ],
+        "monthlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoz"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo2"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMw=="
+          }
+        ]
+      },
+      "messagePointInfo": {
+        "messagePointBalance": 3000,
+        "id": "TWVzc2FnZVBvaW50SW5mbzow"
+      },
+      "isEligibleForWebSubscriptions": false,
+      "isPrivateDeletedBotsChangesEnabled": true,
+      "id": "Vmlld2VyOjA="
+    }
+  },
+  "extensions": {
+    "hi": "bye"
+  }
+}

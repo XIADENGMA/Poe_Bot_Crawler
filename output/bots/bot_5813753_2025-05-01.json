@@ -1,0 +1,90 @@
+{
+  "data": {
+    "botById": {
+      "botPricing": {
+        "rateMenuMarkdown": "Pricing varies based on the selected model and parameters:\n\n| Model | Resolution | Duration | Rate per Video |\n|------|------|------|------|\n| Turbo (Default) | 720p | 5s | 5,000 |\n| 2.1 | 1080p | 5s | 19,167 |\n| 2.2 | 720p | 5s | 5,834 |\n| 2.2 | 720p | 10s | 15,834 |\n| 2.2 | 1080p | 5s | 16,667 |\n| 2.2 | 1080p | 10s | 40,000 |\n| 2.2 + ingredients | 720p | 5s | 8,334 |\n| 2.2 + ingredients | 720p | 10s | 10,000 |\n| 2.2 + ingredients | 1080p | 5s | 20,000 |\n| 2.2 + ingredients | 1080p | 10s | 60,000 |\n| Pikaffects | 720p | 5s | 23,334 |\n",
+        "botPricingType": "undefined",
+        "standardMessagePrice": null
+      },
+      "deletionState": "not_deleted",
+      "displayName": "Pika",
+      "picture": {
+        "__typename": "URLBotImage",
+        "__isBotPicture": "URLBotImage",
+        "url": "https://qph.cf2.poecdn.net/main-thumb-pb-5813753-200-uzmpcqaxweiiznjumtuegeihmituzgvo.jpeg"
+      },
+      "botId": 5813753,
+      "nickname": "pika",
+      "messagePointLimit": {
+        "numRemainingMessages": 0,
+        "id": "TWVzc2FnZVBvaW50TGltaXQ6NTgxMzc1Mw=="
+      },
+      "isPrivateBot": false,
+      "viewerIsCreator": false,
+      "creator": {
+        "isDeleted": false,
+        "profilePhotoUrl": "https://qph.cf2.poecdn.net/main-thumb-2910408620-50-vzndezefcmtfclkxdvgoolqcmksqyizx.jpeg",
+        "fullName": "PikaLabs",
+        "nullableHandle": "pikalabs",
+        "__isNode": "PoeUser",
+        "id": "UG9lVXNlcjoyOTEwNDA4NjIw"
+      },
+      "canUserAccessBot": true,
+      "__isNode": "Bot",
+      "id": "Qm90OjU4MTM3NTM="
+    },
+    "viewer": {
+      "subscription": {
+        "subscriptionProduct": {
+          "paidSubscriptionPeriod": null,
+          "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMDA="
+        },
+        "id": "U3Vic2NyaXB0aW9uOjA=",
+        "yearlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Nw=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDox"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1MQ=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Mg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1OA=="
+          }
+        ],
+        "monthlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoz"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo2"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMw=="
+          }
+        ]
+      },
+      "messagePointInfo": {
+        "messagePointBalance": 3000,
+        "id": "TWVzc2FnZVBvaW50SW5mbzow"
+      },
+      "isEligibleForWebSubscriptions": false,
+      "isPrivateDeletedBotsChangesEnabled": true,
+      "id": "Vmlld2VyOjA="
+    }
+  },
+  "extensions": {
+    "hi": "bye"
+  }
+}

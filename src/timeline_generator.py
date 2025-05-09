@@ -1,8 +1,7 @@
-import logging
-from pathlib import Path
-import shutil
 import json
-from datetime import datetime
+import logging
+import shutil
+from pathlib import Path
 
 from jinja2 import Template
 
@@ -171,7 +170,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
             border-bottom: 1px solid var(--border-color);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         header:before {
@@ -207,7 +206,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             margin-left: auto;
             margin-right: auto;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .info:before {
@@ -426,7 +425,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             position: relative;
             transition: all 0.3s ease;
             border: 1px solid var(--border-color);
-            overflow: hidden;
+            overflow: visible;
         }
 
         .timeline-content::before {
@@ -473,7 +472,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .timeline-changes li:hover {
@@ -505,7 +504,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             border-bottom: 1px solid var(--border-color);
             transition: all 0.2s ease;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .new-bot .price-change-summary {
@@ -546,6 +545,8 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             margin-top: 0;
             border-top: none;
             animation: slideDown 0.3s ease-out;
+            overflow: visible;
+            height: auto;
         }
 
         @keyframes slideDown {
@@ -676,7 +677,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
             position: relative;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
             transition: all 0.3s ease;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .details-card:hover {
@@ -906,8 +907,15 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
                 padding: 15px;
             }
 
-            .details-card {
+            .details-cards {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .details-card {
                 padding: 12px;
+                flex-direction: column;
+                gap: 15px;
             }
 
             .bot-info-card {
@@ -993,9 +1001,9 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 
         .timeline-changes {
             transition: max-height 0.5s ease-out, opacity 0.3s ease-out;
-            max-height: 2000px;
+            max-height: none;
             opacity: 1;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .timeline-item.collapsed .timeline-changes {
@@ -1334,6 +1342,7 @@ TIMELINE_HTML_TEMPLATE = """<!DOCTYPE html>
 </body>
 </html>"""
 
+
 def generate_timeline_data():
     """
     Generate timeline data by comparing all historical bot data files
@@ -1341,8 +1350,9 @@ def generate_timeline_data():
     Returns:
         Dictionary with complete timeline data
     """
-    from src.utils import JSON_DIR, load_json, CURRENT_DATE
     import re
+
+    from src.utils import CURRENT_DATE, JSON_DIR, load_json
 
     # Initialize timeline data
     timeline_data = {}
@@ -1355,7 +1365,7 @@ def generate_timeline_data():
         return None
 
     # Sort files by date in filename (newest first)
-    pattern = re.compile(r'official_bots_with_prices_(\d{4}-\d{2}-\d{2})\.json')
+    pattern = re.compile(r"official_bots_with_prices_(\d{4}-\d{2}-\d{2})\.json")
 
     def extract_date(filepath):
         match = pattern.search(filepath.name)
@@ -1392,17 +1402,16 @@ def generate_timeline_data():
     first_date = sorted_dates[0]
 
     # Initialize timeline_data with empty first day to maintain chronological structure
-    timeline_data[first_date] = {
-        "new_bots": [],
-        "price_changes": []
-    }
+    timeline_data[first_date] = {"new_bots": [], "price_changes": []}
 
-    logger.info(f"Skipping first day ({first_date}) bot comparison as there's no previous data to compare with")
+    logger.info(
+        f"Skipping first day ({first_date}) bot comparison as there's no previous data to compare with"
+    )
 
     # For each subsequent date, compare with the previous date
     for i in range(1, len(sorted_dates)):
         current_date = sorted_dates[i]
-        previous_date = sorted_dates[i-1]
+        previous_date = sorted_dates[i - 1]
 
         current_data = all_data[current_date]
         previous_data = all_data[previous_date]
@@ -1434,7 +1443,13 @@ def generate_timeline_data():
                 price_info = get_price_info(bot)
 
                 # Get component-specific price information
-                components = ["text_input", "image_input", "cache_input", "output", "standard_message"]
+                components = [
+                    "text_input",
+                    "image_input",
+                    "cache_input",
+                    "output",
+                    "standard_message",
+                ]
                 component_price_info = {}
 
                 for component in components:
@@ -1449,14 +1464,16 @@ def generate_timeline_data():
                     "name": bot.get("display_name", "Unknown Bot"),
                     "price": price_info["value"],
                     "unit": price_info["unit"],
-                    "per": price_info["per"]
+                    "per": price_info["per"],
                 }
 
                 # Add component-specific price information
                 new_bot_data.update(component_price_info)
 
                 new_bots.append(new_bot_data)
-                logger.info(f"New bot on {current_date}: {bot.get('handle', 'Unknown')}")
+                logger.info(
+                    f"New bot on {current_date}: {bot.get('handle', 'Unknown')}"
+                )
 
         # Check price changes for existing bots
         for bot_id in set(current_bot_ids.keys()) & set(previous_bot_ids.keys()):
@@ -1470,62 +1487,90 @@ def generate_timeline_data():
             previous_price = previous_price_info["value"]
 
             # If price or pricing terms changed
-            if (current_price != previous_price or
-                current_price_info["unit"] != previous_price_info["unit"] or
-                current_price_info["per"] != previous_price_info["per"]):
-
+            if (
+                current_price != previous_price
+                or current_price_info["unit"] != previous_price_info["unit"]
+                or current_price_info["per"] != previous_price_info["per"]
+            ):
                 # Get component-specific price information
-                components = ["text_input", "image_input", "cache_input", "output", "standard_message"]
+                components = [
+                    "text_input",
+                    "image_input",
+                    "cache_input",
+                    "output",
+                    "standard_message",
+                ]
                 component_price_info = {}
 
                 for component in components:
                     current_component = get_component_price_info(current_bot, component)
-                    previous_component = get_component_price_info(previous_bot, component)
+                    previous_component = get_component_price_info(
+                        previous_bot, component
+                    )
 
-                    component_price_info[f"new_{component}"] = current_component["value"]
-                    component_price_info[f"new_{component}_unit"] = current_component["unit"]
-                    component_price_info[f"new_{component}_per"] = current_component["per"]
+                    component_price_info[f"new_{component}"] = current_component[
+                        "value"
+                    ]
+                    component_price_info[f"new_{component}_unit"] = current_component[
+                        "unit"
+                    ]
+                    component_price_info[f"new_{component}_per"] = current_component[
+                        "per"
+                    ]
 
-                    component_price_info[f"old_{component}"] = previous_component["value"]
-                    component_price_info[f"old_{component}_unit"] = previous_component["unit"]
-                    component_price_info[f"old_{component}_per"] = previous_component["per"]
+                    component_price_info[f"old_{component}"] = previous_component[
+                        "value"
+                    ]
+                    component_price_info[f"old_{component}_unit"] = previous_component[
+                        "unit"
+                    ]
+                    component_price_info[f"old_{component}_per"] = previous_component[
+                        "per"
+                    ]
 
-                price_changes.append({
-                    "id": current_bot.get("bot_ID", ""),
-                    "handle": current_bot.get("handle", ""),
-                    "name": current_bot.get("display_name", "Unknown Bot"),
-                    "old_price": previous_price_info["value"],
-                    "old_unit": previous_price_info["unit"],
-                    "old_per": previous_price_info["per"],
-                    "new_price": current_price_info["value"],
-                    "new_unit": current_price_info["unit"],
-                    "new_per": current_price_info["per"],
-                    **component_price_info
-                })
-                logger.info(f"Price change on {current_date}: {current_bot.get('handle', 'Unknown')}")
+                price_changes.append(
+                    {
+                        "id": current_bot.get("bot_ID", ""),
+                        "handle": current_bot.get("handle", ""),
+                        "name": current_bot.get("display_name", "Unknown Bot"),
+                        "old_price": previous_price_info["value"],
+                        "old_unit": previous_price_info["unit"],
+                        "old_per": previous_price_info["per"],
+                        "new_price": current_price_info["value"],
+                        "new_unit": current_price_info["unit"],
+                        "new_per": current_price_info["per"],
+                        **component_price_info,
+                    }
+                )
+                logger.info(
+                    f"Price change on {current_date}: {current_bot.get('handle', 'Unknown')}"
+                )
 
         # Add to timeline data if there are changes
         if new_bots or price_changes:
             timeline_data[current_date] = {
                 "new_bots": new_bots,
-                "price_changes": price_changes
+                "price_changes": price_changes,
             }
 
     # Save the timeline data
     timeline_file = JSON_DIR / "timeline_data.json"
-    with open(timeline_file, 'w', encoding='utf-8') as f:
+    with open(timeline_file, "w", encoding="utf-8") as f:
         json.dump(timeline_data, f, indent=2, ensure_ascii=False)
 
-    logger.info(f"Generated complete timeline data with {len(timeline_data)-1} days of actual comparison data (skipping first day)")
+    logger.info(
+        f"Generated complete timeline data with {len(timeline_data) - 1} days of actual comparison data (skipping first day)"
+    )
 
     # Also save a dated copy for history
     dated_filename = f"timeline_data_{CURRENT_DATE}.json"
     dated_file = JSON_DIR / dated_filename
-    with open(dated_file, 'w', encoding='utf-8') as f:
+    with open(dated_file, "w", encoding="utf-8") as f:
         json.dump(timeline_data, f, indent=2, ensure_ascii=False)
     logger.info(f"Saved dated timeline data to {dated_file}")
 
     return timeline_data
+
 
 def get_price_info(bot):
     """Get price value, unit and per information from bot data"""
@@ -1552,7 +1597,10 @@ def get_price_info(bot):
                         else:
                             price_info["unit"] = standard_msg["unit"] or "积分"
                     if "per" in standard_msg:
-                        if isinstance(standard_msg["per"], dict) and "unit" in standard_msg["per"]:
+                        if (
+                            isinstance(standard_msg["per"], dict)
+                            and "unit" in standard_msg["per"]
+                        ):
                             if standard_msg["per"]["unit"]:
                                 # 尝试翻译单位单位
                                 per_unit = standard_msg["per"]["unit"]
@@ -1560,7 +1608,9 @@ def get_price_info(bot):
                                     per_unit = "Tokens"
                                 elif per_unit.lower() == "message":
                                     per_unit = "信息"
-                                price_info["per"] = f"{standard_msg['per'].get('value', '1k')} {per_unit}"
+                                price_info["per"] = (
+                                    f"{standard_msg['per'].get('value', '1k')} {per_unit}"
+                                )
                         elif standard_msg["per"]:
                             # 尝试翻译单位单位
                             per_info = standard_msg["per"]
@@ -1572,8 +1622,13 @@ def get_price_info(bot):
                                 price_info["per"] = per_info
 
             # If pricing_type exists with non_subscriber field
-            elif "pricing_type" in bot["points_price"] and "non_subscriber" in bot["points_price"]:
-                text_output = bot["points_price"]["non_subscriber"].get("text_output", {})
+            elif (
+                "pricing_type" in bot["points_price"]
+                and "non_subscriber" in bot["points_price"]
+            ):
+                text_output = bot["points_price"]["non_subscriber"].get(
+                    "text_output", {}
+                )
                 if isinstance(text_output, dict):
                     if "value" in text_output:
                         price_info["value"] = text_output["value"]
@@ -1584,7 +1639,10 @@ def get_price_info(bot):
                         else:
                             price_info["unit"] = text_output["unit"] or "积分"
                     if "per" in text_output:
-                        if isinstance(text_output["per"], dict) and "unit" in text_output["per"]:
+                        if (
+                            isinstance(text_output["per"], dict)
+                            and "unit" in text_output["per"]
+                        ):
                             if text_output["per"]["unit"]:
                                 # 尝试翻译单位单位
                                 per_unit = text_output["per"]["unit"]
@@ -1592,7 +1650,9 @@ def get_price_info(bot):
                                     per_unit = "Tokens"
                                 elif per_unit.lower() == "message":
                                     per_unit = "信息"
-                                price_info["per"] = f"{text_output['per'].get('value', '1k')} {per_unit}"
+                                price_info["per"] = (
+                                    f"{text_output['per'].get('value', '1k')} {per_unit}"
+                                )
                         elif text_output["per"]:
                             # 尝试翻译单位单位
                             per_info = text_output["per"]
@@ -1614,6 +1674,7 @@ def get_price_info(bot):
         logger.warning(f"Error getting price info: {e}")
         return {"value": 0, "unit": "积分", "per": "1k Tokens"}
 
+
 def get_component_price_info(bot, component_name):
     """Get price information for a specific component"""
     try:
@@ -1621,7 +1682,10 @@ def get_component_price_info(bot, component_name):
         price_info = {"value": 0, "unit": "积分", "per": "1k Tokens"}
 
         # If standard_message is requested and no points_price, use the bot price
-        if component_name == "standard_message" and ("points_price" not in bot or "standard_message" not in bot.get("points_price", {})):
+        if component_name == "standard_message" and (
+            "points_price" not in bot
+            or "standard_message" not in bot.get("points_price", {})
+        ):
             return get_price_info(bot)
 
         # Try points_price structure
@@ -1651,7 +1715,10 @@ def get_component_price_info(bot, component_name):
                     else:
                         price_info["unit"] = component["unit"] or "积分"
                 if "per" in component:
-                    if isinstance(component["per"], dict) and "unit" in component["per"]:
+                    if (
+                        isinstance(component["per"], dict)
+                        and "unit" in component["per"]
+                    ):
                         if component["per"].get("unit"):
                             # 尝试翻译单位单位
                             per_unit = component["per"]["unit"]
@@ -1659,7 +1726,9 @@ def get_component_price_info(bot, component_name):
                                 per_unit = "Tokens"
                             elif per_unit.lower() == "message":
                                 per_unit = "信息"
-                            price_info["per"] = f"{component['per'].get('value', '1k')} {per_unit}"
+                            price_info["per"] = (
+                                f"{component['per'].get('value', '1k')} {per_unit}"
+                            )
                     elif component["per"]:
                         # 尝试翻译单位单位
                         per_info = component["per"]
@@ -1681,6 +1750,7 @@ def get_component_price_info(bot, component_name):
         logger.warning(f"Error getting component price info: {e}")
         return {"value": 0, "unit": "积分", "per": "1k Tokens"}
 
+
 def get_bot_price_component(bot, component_name):
     """Extract specific pricing component from bot data"""
     try:
@@ -1697,7 +1767,10 @@ def get_bot_price_component(bot, component_name):
                             return 0
 
                 # Special case for "standard_message" which is what most bots use
-                if component_name == "standard_message" and "standard_message" in bot["points_price"]:
+                if (
+                    component_name == "standard_message"
+                    and "standard_message" in bot["points_price"]
+                ):
                     value = bot["points_price"]["standard_message"].get("value", 0)
                     if isinstance(value, (int, float, str)):
                         try:
@@ -1727,6 +1800,7 @@ def get_bot_price_component(bot, component_name):
         # Return 0 instead of None
         return 0
 
+
 def get_bot_price(bot):
     """Extract price from bot data in any format"""
     try:
@@ -1750,7 +1824,9 @@ def get_bot_price(bot):
                 if "pricing_type" in bot["points_price"]:
                     # Mixed pricing with non_subscriber field
                     if "non_subscriber" in bot["points_price"]:
-                        text_output = bot["points_price"]["non_subscriber"].get("text_output", {})
+                        text_output = bot["points_price"]["non_subscriber"].get(
+                            "text_output", {}
+                        )
                         value = text_output.get("value", 0)
                         try:
                             return float(value)
@@ -1760,6 +1836,7 @@ def get_bot_price(bot):
         return 0
     except Exception:
         return 0
+
 
 def get_bot_model(bot):
     """Extract the model information from bot data"""
@@ -1771,6 +1848,7 @@ def get_bot_model(bot):
         return "Unknown"
     except Exception:
         return "Unknown"
+
 
 def generate_timeline_html(timeline_data=None):
     """
@@ -1804,7 +1882,9 @@ def generate_timeline_html(timeline_data=None):
             # 从数据中移除第一天
             first_day = sorted_dates[0]
             logger.info(f"Removing first day ({first_day}) from timeline HTML display")
-            filtered_timeline_data = {k: v for k, v in timeline_data.items() if k != first_day}
+            filtered_timeline_data = {
+                k: v for k, v in timeline_data.items() if k != first_day
+            }
         else:
             filtered_timeline_data = timeline_data
     else:
@@ -1814,7 +1894,7 @@ def generate_timeline_html(timeline_data=None):
     template = Template(TIMELINE_HTML_TEMPLATE)
     html_content = template.render(
         timeline_data=filtered_timeline_data,  # 传递过滤后的时间线数据
-        date=CURRENT_DATE
+        date=CURRENT_DATE,
     )
 
     # Save HTML to file
@@ -1831,6 +1911,7 @@ def generate_timeline_html(timeline_data=None):
     shutil.copy2(filepath, timeline_path)
 
     return filepath
+
 
 def update_timeline_index():
     """

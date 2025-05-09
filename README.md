@@ -4,6 +4,10 @@ A tool for crawling and collecting data about AI bots on the Poe platform, inclu
 
 [中文文档](README_CN.md)
 
+## TODO
+
+- [ ] Add various bot price parsing (image generation, video generation, etc.)
+
 ## Features
 
 1. Retrieves the official bot list from Poe and saves it in JSON format

@@ -1,0 +1,90 @@
+{
+  "data": {
+    "botById": {
+      "botPricing": {
+        "rateMenuMarkdown": "Message cost is variable, so longer messages are more expensive than shorter messages. \n**Send up to 49% more messages** on Poe compared to OpenAI's API. [Learn more](https://help.poe.com/hc/en-us/articles/19945140063636-Poe-Subscriptions-FAQs#h_01JH4A5RK7EHWFQE50P8N508GM)\n\n| Type | Rate |\n|------|------|\n| Input (text) | 75 points/1k tokens |\n| Input (image) | 75 points/1k tokens |\n| Bot message | 204 points/message |\n| Image generation | Additional costs based on the \"Image Generation\" section below |\n| Chat history | Input rates are applied |\n| Chat history cache discount | 50% discount on [cached chat history](https://help.poe.com/hc/en-us/articles/19944206309524-Poe-FAQs#h_01JMDGNARXH8B0MN452N6N7XHP) |\n \n\n\n _Image Generation (GPT-Image-1)_\nMessage cost is variable, based on input tokens, and output size/resolution and quality. [Learn more.](https://help.poe.com/hc/en-us/articles/19944206309524-Poe-FAQs#h_01HCFXCW5CB1DSH6F4WXXYHJFJ)\nImage generation inputs are determined by the bot based on the user query.\n\n| Type | Rate |\n|------|------|\n| Input (text) | 151 points/1k tokens |\n| Input (images) | 301 points/1k tokens |\n| Output (image) | Based on output image quality and resolution (see 'Output Image Rates' below) |\n\nOutput Image Rates\n\n| Size / &#10; Quality | 1:1 &#10; (1024x1024) | 3:2 &#10; (1536x1024) | 2:3 &#10; (1024x1536) |\n| :-- | :--: | :--: | :--: |\n| low | 328 points | 481 points | 491 points |\n| medium | 1269 points | 1882 points | 1902 points |\n| high | 4993 points | 7451 points | 7488 points |\n",
+        "botPricingType": "undefined",
+        "standardMessagePrice": null
+      },
+      "deletionState": "not_deleted",
+      "displayName": "GPT-4o",
+      "picture": {
+        "__typename": "URLBotImage",
+        "__isBotPicture": "URLBotImage",
+        "url": "https://qph.cf2.poecdn.net/main-thumb-pb-3015-200-orplgzxujhsekrpxvdagmkdsrhnvbhmv.jpeg"
+      },
+      "botId": 3015,
+      "nickname": "gpt4_o",
+      "messagePointLimit": {
+        "numRemainingMessages": 10,
+        "id": "TWVzc2FnZVBvaW50TGltaXQ6MzAxNQ=="
+      },
+      "isPrivateBot": false,
+      "viewerIsCreator": false,
+      "creator": {
+        "isDeleted": false,
+        "profilePhotoUrl": "https://qph.cf2.poecdn.net/main-thumb-2910400879-50-wrfgcbmfjrhquvwlxvypitmawpovrxoi.jpeg",
+        "fullName": "OpenAI",
+        "nullableHandle": "openai",
+        "__isNode": "PoeUser",
+        "id": "UG9lVXNlcjoyOTEwNDAwODc5"
+      },
+      "canUserAccessBot": true,
+      "__isNode": "Bot",
+      "id": "Qm90OjMwMTU="
+    },
+    "viewer": {
+      "subscription": {
+        "subscriptionProduct": {
+          "paidSubscriptionPeriod": null,
+          "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMDA="
+        },
+        "id": "U3Vic2NyaXB0aW9uOjA=",
+        "yearlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Nw=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDox"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1MQ=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Mg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1OA=="
+          }
+        ],
+        "monthlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoz"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo2"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMw=="
+          }
+        ]
+      },
+      "messagePointInfo": {
+        "messagePointBalance": 3000,
+        "id": "TWVzc2FnZVBvaW50SW5mbzow"
+      },
+      "isEligibleForWebSubscriptions": true,
+      "isPrivateDeletedBotsChangesEnabled": null,
+      "id": "Vmlld2VyOjA="
+    }
+  },
+  "extensions": {
+    "hi": "bye"
+  }
+}

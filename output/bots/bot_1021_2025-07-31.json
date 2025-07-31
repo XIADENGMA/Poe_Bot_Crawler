@@ -1,0 +1,90 @@
+{
+  "data": {
+    "botById": {
+      "botPricing": {
+        "rateMenuMarkdown": "Message cost is variable, so longer messages are more expensive than shorter messages. \n\n| Type | Rate |\n|------|------|\n| Input (text) | 30 points/1k tokens |\n| Input (image) | 30 points/1k tokens |\n| Bot message | 42 points/message |\n| Chat history | Input rates are applied |\n| Chat history cache discount | 90% discount on [cached chat history](https://help.poe.com/hc/en-us/articles/19944206309524-Poe-FAQs#h_01JMDGNARXH8B0MN452N6N7XHP) |\n",
+        "botPricingType": "variable",
+        "standardMessagePrice": 49
+      },
+      "deletionState": "not_deleted",
+      "displayName": "Claude-Haiku-3.5",
+      "picture": {
+        "__typename": "URLBotImage",
+        "__isBotPicture": "URLBotImage",
+        "url": "https://qph.cf2.poecdn.net/main-thumb-pb-1021-200-nqsflsfgrznqhvvypcvhjhqwbeifxzqg.jpeg"
+      },
+      "botId": 1021,
+      "nickname": "claude_3_5_firefly",
+      "messagePointLimit": {
+        "numRemainingMessages": 31,
+        "id": "TWVzc2FnZVBvaW50TGltaXQ6MTAyMQ=="
+      },
+      "isPrivateBot": false,
+      "viewerIsCreator": false,
+      "creator": {
+        "isDeleted": false,
+        "profilePhotoUrl": "https://qph.cf2.poecdn.net/main-thumb-2910399423-50-rmsjsjntoqqejhymvulgknulhathfdmz.jpeg",
+        "fullName": "Anthropic",
+        "nullableHandle": "anthropic",
+        "__isNode": "PoeUser",
+        "id": "UG9lVXNlcjoyOTEwMzk5NDIz"
+      },
+      "canUserAccessBot": true,
+      "__isNode": "Bot",
+      "id": "Qm90OjEwMjE="
+    },
+    "viewer": {
+      "subscription": {
+        "subscriptionProduct": {
+          "paidSubscriptionPeriod": null,
+          "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMDA="
+        },
+        "id": "U3Vic2NyaXB0aW9uOjA=",
+        "yearlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Nw=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDox"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1MQ=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Mg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1OA=="
+          }
+        ],
+        "monthlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoz"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo2"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMw=="
+          }
+        ]
+      },
+      "messagePointInfo": {
+        "messagePointBalance": 3000,
+        "id": "TWVzc2FnZVBvaW50SW5mbzow"
+      },
+      "isEligibleForWebSubscriptions": true,
+      "isPrivateDeletedBotsChangesEnabled": null,
+      "id": "Vmlld2VyOjA="
+    }
+  },
+  "extensions": {
+    "hi": "bye"
+  }
+}

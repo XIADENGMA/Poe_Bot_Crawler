@@ -1,0 +1,90 @@
+{
+  "data": {
+    "botById": {
+      "botPricing": {
+        "rateMenuMarkdown": " \n\n| Type | Rate |\n|------|------|\n| Total cost | 200 points/message |\n",
+        "botPricingType": "flat",
+        "standardMessagePrice": 200
+      },
+      "deletionState": "not_deleted",
+      "displayName": "Qwen3-235B-2507-CS",
+      "picture": {
+        "__typename": "URLBotImage",
+        "__isBotPicture": "URLBotImage",
+        "url": "https://qph.cf2.poecdn.net/main-thumb-pb-6299354-200-vxjqeyswyzxxatfvgevpjlwfmvhzqpdp.jpeg"
+      },
+      "botId": 6299354,
+      "nickname": "qwen3235b2507cs",
+      "messagePointLimit": {
+        "numRemainingMessages": 15,
+        "id": "TWVzc2FnZVBvaW50TGltaXQ6NjI5OTM1NA=="
+      },
+      "isPrivateBot": false,
+      "viewerIsCreator": false,
+      "creator": {
+        "isDeleted": false,
+        "profilePhotoUrl": "https://qph.cf2.poecdn.net/main-thumb-3012674654-50-ycklnkoqymxapkshiubfkgqbharebxwr.jpeg",
+        "fullName": "CerebrasAI",
+        "nullableHandle": "cerebrasai",
+        "__isNode": "PoeUser",
+        "id": "UG9lVXNlcjozMDEyNjc0NjU0"
+      },
+      "canUserAccessBot": true,
+      "__isNode": "Bot",
+      "id": "Qm90OjYyOTkzNTQ="
+    },
+    "viewer": {
+      "subscription": {
+        "subscriptionProduct": {
+          "paidSubscriptionPeriod": null,
+          "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMDA="
+        },
+        "id": "U3Vic2NyaXB0aW9uOjA=",
+        "yearlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Nw=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDox"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1MQ=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1Mg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1OA=="
+          }
+        ],
+        "monthlyOptions": [
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMg=="
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoz"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo1"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDo2"
+          },
+          {
+            "id": "U3Vic2NyaXB0aW9uUHJvZHVjdDoxMw=="
+          }
+        ]
+      },
+      "messagePointInfo": {
+        "messagePointBalance": 3000,
+        "id": "TWVzc2FnZVBvaW50SW5mbzow"
+      },
+      "isEligibleForWebSubscriptions": true,
+      "isPrivateDeletedBotsChangesEnabled": null,
+      "id": "Vmlld2VyOjA="
+    }
+  },
+  "extensions": {
+    "hi": "bye"
+  }
+}
